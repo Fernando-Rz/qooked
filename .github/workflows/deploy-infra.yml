@@ -1,5 +1,5 @@
 on: workflow_dispatch
-name: Azure ARM Template Infra Deployment
+name: ARM Template Infra Deployment
 jobs:
   deploy-templates:
     runs-on: ubuntu-latest
