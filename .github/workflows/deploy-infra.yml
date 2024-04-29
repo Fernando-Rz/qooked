@@ -11,18 +11,21 @@ jobs:
       # Checkout code
       - uses: actions/checkout@main
 
-        # Log into Azure
+      # Log into Azure w/ service principal
       - uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-        # Deploy ARM template
-      - name: Run ARM deploy
-        uses: azure/arm-deploy@v1
+      # Deploy ARM templates
+      - uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
           template: ./deploy/Infra/Infra.Template.json
           parameters: ./deploy/Infra/Infra.Parameters.json
+
+      # output variables from template
+      - run: echo ${{ steps.deploy.outputs.appServiceName }}
+      - run: echo ${{ steps.deploy.outputs.appServicePlanName }}

@@ -68,7 +68,7 @@
           "remoteDebuggingEnabled": false,
           "requestTracingEnabled": false,
           "scmType": "None",
-          "use32BitWorkerProcess": false,
+          "use32BitWorkerProcess": true,
           "webSocketsEnabled": false
         }
       },
