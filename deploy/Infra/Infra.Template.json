@@ -30,8 +30,9 @@
         "name": "F1",
         "capacity": 1
       },
+      "kind": "linux",
       "properties": {
-        "reserved": false,
+        "reserved": true,
         "zoneRedundant": false
       }
     },
@@ -52,7 +53,6 @@
         "httpsOnly": true,
         "publicNetworkAccess": "Enabled",
         "redundancyMode": "None",
-        "reserved": false,
         "scmSiteAlsoStopped": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "siteConfig": {
