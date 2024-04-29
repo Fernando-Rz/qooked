@@ -20,6 +20,7 @@ jobs:
 
       # Deploy ARM templates
       - uses: azure/arm-deploy@v1
+        id: deploy
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
