@@ -56,7 +56,7 @@
         "scmSiteAlsoStopped": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "siteConfig": {
-          "alwaysOn": true,
+          "alwaysOn": false,
           "appSettings": [],
           "autoSwapSlotName": "",
           "detailedErrorLoggingEnabled": false,
