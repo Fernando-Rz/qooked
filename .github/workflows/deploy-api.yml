@@ -4,7 +4,7 @@ on: workflow_dispatch
 env:
   AZURE_WEBAPP_NAME: qooked
   WORKING_DIRECTORY: ./src
-  GO_VERSION: 1.22.1
+  GO_VERSION: 1.19
 
 permissions:
   id-token: write
@@ -30,7 +30,7 @@ jobs:
         uses: azure/appservice-build@v3
         with:
           platform: Golang
-          platform-version: 1.22
+          platform-version: ${{ env.GO_VERSION }}
           source-directory: ${{ env.WORKING_DIRECTORY }}
           output-directory: ${{ env.WORKING_DIRECTORY }}/build
 
