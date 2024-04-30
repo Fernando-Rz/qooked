@@ -13,18 +13,26 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Clone repo
         uses: actions/checkout@main
 
-      - name: Setup Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: ${{ env.GO_VERSION }}
+      # - name: Setup Go
+      #   uses: actions/setup-go@v3
+      #   with:
+      #     go-version: ${{ env.GO_VERSION }}
 
-      - name: Go build
-        working-directory: ${{ env.WORKING_DIRECTORY }}
-        run: |
-          go build -o api.exe
+      # - name: Go build
+      #   working-directory: ${{ env.WORKING_DIRECTORY }}
+      #   run: |
+      #     go build -o api.exe
+
+      - name: Building web app
+        uses: azure/appservice-build@v3
+        with:
+          platform: Golang
+          platform-version: 1.22
+          source-directory: ${{ env.WORKING_DIRECTORY }}
+          output-directory: ${{ env.WORKING_DIRECTORY }}/build
 
       - name: Log into Azure w/ service principal
         uses: azure/login@v1
@@ -38,5 +46,4 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ${{ env.WORKING_DIRECTORY }}
-          startup-command: ./api.exe
+          package: ${{ env.WORKING_DIRECTORY }}/build
