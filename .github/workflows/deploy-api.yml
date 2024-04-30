@@ -3,7 +3,7 @@ on: workflow_dispatch
 
 env:
   AZURE_WEBAPP_NAME: qooked
-  WORKING_DIRECTORY: src
+  WORKING_DIRECTORY: ./src
   GO_VERSION: 1.22.1
 
 permissions:
@@ -39,3 +39,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           package: ${{ env.WORKING_DIRECTORY }}
+          startup-command: qooked
