@@ -24,7 +24,7 @@ jobs:
       - name: Go build
         working-directory: ${{ env.WORKING_DIRECTORY }}
         run: |
-          go build
+          go build -o api.exe
 
       - name: Log into Azure w/ service principal
         uses: azure/login@v1
@@ -39,4 +39,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           package: ${{ env.WORKING_DIRECTORY }}
-          startup-command: qooked
+          startup-command: ./api.exe

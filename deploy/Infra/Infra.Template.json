@@ -57,7 +57,12 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "siteConfig": {
           "alwaysOn": false,
-          "appSettings": [],
+          "appSettings": [
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": 1
+            }
+          ],
           "autoSwapSlotName": "",
           "detailedErrorLoggingEnabled": false,
           "healthCheckPath": "",
