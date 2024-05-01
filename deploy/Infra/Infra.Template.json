@@ -17,7 +17,8 @@
     }
   },
   "variables": {
-    "appServicePlanName": "[concat(parameters('appServiceName'), '-plan')]"
+    "appServicePlanName": "[concat(parameters('appServiceName'), '-plan')]",
+    "containerRegistryName": "[concat(parameters('appServiceName'), 'acr')]"
   },
   "resources": [
     {
@@ -26,8 +27,8 @@
       "name": "[variables('appServicePlanName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "tier": "Free",
-        "name": "F1",
+        "tier": "Basic",
+        "name": "B1",
         "capacity": 1
       },
       "kind": "linux",
@@ -56,7 +57,7 @@
         "scmSiteAlsoStopped": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "siteConfig": {
-          "alwaysOn": false,
+          "alwaysOn": true,
           "appSettings": [],
           "autoSwapSlotName": "",
           "detailedErrorLoggingEnabled": false,
@@ -68,11 +69,35 @@
           "remoteDebuggingEnabled": false,
           "requestTracingEnabled": false,
           "scmType": "None",
-          "use32BitWorkerProcess": true,
+          "use32BitWorkerProcess": false,
           "webSocketsEnabled": false
         }
       },
       "dependsOn": ["[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"]
+    },
+    {
+      "type": "Microsoft.ContainerRegistry/registries",
+      "apiVersion": "2022-12-01",
+      "name": "[variables('containerRegistryName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Premium"
+      },
+      "identity": {
+        "type": "None",
+        "userAssignedIdentities": {}
+      },
+      "properties": {
+        "adminUserEnabled": true,
+        "dataEndpointEnabled": false,
+        "networkRuleBypassOptions": "AzureServices",
+        "networkRuleSet": {
+          "defaultAction": "Allow",
+          "ipRules": []
+        },
+        "publicNetworkAccess": "Disabled",
+        "zoneRedundancy": "Disabled"
+      }
     }
   ],
   "outputs": {
@@ -83,6 +108,10 @@
     "appServicePlanName": {
       "type": "string",
       "value": "[variables('appServicePlanName')]"
+    },
+    "containerRegistryName": {
+      "type": "string",
+      "value": "[variables('containerRegistryName')]"
     }
   }
 }

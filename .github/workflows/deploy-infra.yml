@@ -31,3 +31,5 @@ jobs:
         run: echo ${{ steps.deploy.outputs.appServicePlanName }}
       - name: App Service Name
         run: echo ${{ steps.deploy.outputs.appServiceName }}
+      - name: Container Registry Name
+        run: echo ${{ steps.deploy.outputs.containerRegistryName }}
