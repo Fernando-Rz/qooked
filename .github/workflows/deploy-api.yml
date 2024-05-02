@@ -9,7 +9,7 @@ permissions:
   id-token: write
   contents: read
 jobs:
-  build-and-push-image:
+  deploy-image:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
@@ -27,9 +27,6 @@ jobs:
           docker build ${{ env.WORKING_DIRECTORY }} -t ${{ secrets.REGISTRY_URL }}/qooked:${{ github.sha }}
           docker push ${{ secrets.REGISTRY_URL }}/qooked:${{ github.sha }}
 
-  deploy-image:
-    runs-on: ubuntu-latest
-    steps:
       - name: Log into Azure w/ service principal
         uses: azure/login@v1
         with:
