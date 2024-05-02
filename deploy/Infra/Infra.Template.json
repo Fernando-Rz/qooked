@@ -95,7 +95,7 @@
           "defaultAction": "Allow",
           "ipRules": []
         },
-        "publicNetworkAccess": "Disabled",
+        "publicNetworkAccess": "Enabled",
         "zoneRedundancy": "Disabled"
       }
     }
