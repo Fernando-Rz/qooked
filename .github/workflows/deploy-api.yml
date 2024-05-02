@@ -4,36 +4,32 @@ on: workflow_dispatch
 env:
   AZURE_WEBAPP_NAME: qooked
   WORKING_DIRECTORY: ./src
-  GO_VERSION: 1.19
 
 permissions:
   id-token: write
   contents: read
 jobs:
-  build-and-deploy:
+  build-and-push-image:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
         uses: actions/checkout@main
 
-      # - name: Setup Go
-      #   uses: actions/setup-go@v3
-      #   with:
-      #     go-version: ${{ env.GO_VERSION }}
-
-      # - name: Go build
-      #   working-directory: ${{ env.WORKING_DIRECTORY }}
-      #   run: |
-      #     go build -o api.exe
-
-      - name: Building web app
-        uses: azure/appservice-build@v3
+      - name: Authenticate to Azure Container Registry
+        uses: azure/docker-login@v1
         with:
-          platform: Golang
-          platform-version: ${{ env.GO_VERSION }}
-          source-directory: ${{ env.WORKING_DIRECTORY }}
-          output-directory: ${{ env.WORKING_DIRECTORY }}/build
+          login-server: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
 
+      - name: Docker Build & Push to ACR
+        run: |
+          docker build ${{ env.WORKING_DIRECTORY }} -t ${{ secrets.REGISTRY_URL }}/qooked:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_URL }}/qooked:${{ github.sha }}
+
+  deploy-image:
+    runs-on: ubuntu-latest
+    steps:
       - name: Log into Azure w/ service principal
         uses: azure/login@v1
         with:
@@ -41,9 +37,30 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy to Azure Web App
+      - name: Set web app ACR authentication
+        uses: Azure/appservice-settings@v1
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-settings-json: |
+            [
+              {
+                "name": "DOCKER_REGISTRY_SERVER_URL",
+                "value": "https://${{ secrets.REGISTRY_URL }}"
+              },
+              {
+                "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+                "value": "${{ secrets.REGISTRY_USERNAME  }}"
+              },
+              {
+                "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+                "value": "${{ secrets.REGISTRY_PASSWORD }}"
+              }
+            ]
+
+      - name: Deploy to Azure web app
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          package: ${{ env.WORKING_DIRECTORY }}/build
+          images: ${{ secrets.REGISTRY_URL }}/qooked:${{ github.sha }}
+          # startup-command: './qooked'
