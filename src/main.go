@@ -12,7 +12,7 @@ func main() {
     router := gin.Default()
 
 	// health check routes
-	router.GET("/health-check", controllers.HealthCheck)
+	//router.GET("/health-check", controllers.HealthCheck)
 
 	// recipe scope routes
     router.GET("/recipes", controllers.GetRecipes)
