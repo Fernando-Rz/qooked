@@ -1,3 +1,10 @@
+### Health Check Endpoint
+GET https://qooked.azurewebsites.net/health-check
+
+### Create Recipe
+PUT https://qooked.azurewebsites.net/recipes/sandwich
+Content-Type: application/json
+
 {
   "name": "Brayan's Sandwich Recipe",
   "description": "My first recipe.",

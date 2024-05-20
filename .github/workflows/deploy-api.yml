@@ -3,7 +3,7 @@ on: workflow_dispatch
 
 env:
   AZURE_WEBAPP_NAME: qooked
-  WORKING_DIRECTORY: ./src
+  WORKING_DIRECTORY: .
 
 permissions:
   id-token: write

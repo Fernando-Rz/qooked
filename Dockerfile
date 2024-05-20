@@ -2,7 +2,7 @@
 FROM golang:1.22.1
 
 # Set the current working directory inside the container
-WORKDIR /app
+WORKDIR /api
 
 # Copy go mod and sum files
 COPY go.mod go.sum ./
@@ -15,7 +15,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go app
-RUN go build -o main .
+RUN go build -o main cmd/api/main.go
 
 # Expose port 8080 to the outside world
 EXPOSE 8080

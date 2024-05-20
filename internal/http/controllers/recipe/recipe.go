@@ -1,4 +1,4 @@
-package controllers
+package recipe
 
 import (
 	"net/http"
@@ -7,17 +7,17 @@ import (
 )
 
 func GetRecipes(ctx *gin.Context) {
-	// var recipes = []Recipe{
+	// var recipes = []models.Recipe{
 	// 	{
 	// 		Name: "",
 	// 		Description: "",
-	// 		Time: RecipeTime{
+	// 		Time: models.RecipeTime{
 	// 			Prep: "2",
 	// 			Cook: "2",
 	// 			Total: "2",
 	// 		},        
 	// 		Servings: 1,
-	// 		Ingredients: []Ingredient{
+	// 		Ingredients: []models.Ingredient{
 	// 			{
 	// 				Name: "bread",
 	// 				Amount: "4 slices",

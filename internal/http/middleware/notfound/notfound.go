@@ -1,4 +1,4 @@
-package middleware
+package notfound
 
 import (
 	"net/http"
