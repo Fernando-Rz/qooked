@@ -24,8 +24,8 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
-          template: ./infra/Infra.Template.json
-          parameters: ./infra/Infra.Parameters.json
+          template: ./.infra/Infra.Template.json
+          parameters: ./.infra/Infra.Parameters.json
 
       - name: App Service Plan Name
         run: echo ${{ steps.deploy.outputs.appServicePlanName }}
