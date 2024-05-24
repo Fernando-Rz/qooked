@@ -1,4 +1,4 @@
-name: Deploy API to Azure Web App
+name: API Deployment to Azure Web App
 on: workflow_dispatch
 
 env:
@@ -9,7 +9,7 @@ permissions:
   id-token: write
   contents: read
 jobs:
-  deploy-image:
+  deploy-api:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repo
@@ -24,8 +24,8 @@ jobs:
 
       - name: Docker Build & Push to ACR
         run: |
-          docker build ${{ env.WORKING_DIRECTORY }} -t ${{ secrets.REGISTRY_URL }}/qooked:${{ github.sha }}
-          docker push ${{ secrets.REGISTRY_URL }}/qooked:${{ github.sha }}
+          docker build ${{ env.WORKING_DIRECTORY }} -t ${{ secrets.REGISTRY_URL }}/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }}
+          docker push ${{ secrets.REGISTRY_URL }}/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }}
 
       - name: Log into Azure w/ service principal
         uses: azure/login@v1
@@ -51,13 +51,15 @@ jobs:
               {
                 "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
                 "value": "${{ secrets.REGISTRY_PASSWORD }}"
+              },
+              {
+                "name": "API_BUILD_VERSION",
+                "value": "${{ github.sha }}"
               }
             ]
 
       - name: Deploy to Azure web app
-        id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          images: ${{ secrets.REGISTRY_URL }}/qooked:${{ github.sha }}
-          # startup-command: './qooked'
+          images: ${{ secrets.REGISTRY_URL }}/${{ env.AZURE_WEBAPP_NAME }}:${{ github.sha }}

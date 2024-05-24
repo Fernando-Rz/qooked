@@ -1,11 +1,15 @@
-name: ARM Template Infra Deployment
+name: Infra Deployment using ARM Templates
 on: workflow_dispatch
+
+env:
+  TEMPLATE_FILE_PATH: ./.infra/Infra.Template.json
+  PARAMETERS_FILE_PATH: ./.infra/Infra.Parameters.json
 
 permissions:
   id-token: write
   contents: read
 jobs:
-  deploy-templates:
+  deploy-infra:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,16 +24,11 @@ jobs:
 
       - name: Deploy ARM templates
         uses: azure/arm-deploy@v1
-        id: deploy
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           resourceGroupName: ${{ secrets.AZURE_RG }}
-          template: ./.infra/Infra.Template.json
-          parameters: ./.infra/Infra.Parameters.json
+          template: ${{ env.TEMPLATE_FILE_PATH }}
+          parameters: ${{ env.PARAMETERS_FILE_PATH }}
 
-      - name: App Service Plan Name
-        run: echo ${{ steps.deploy.outputs.appServicePlanName }}
       - name: App Service Name
         run: echo ${{ steps.deploy.outputs.appServiceName }}
-      - name: Container Registry Name
-        run: echo ${{ steps.deploy.outputs.containerRegistryName }}

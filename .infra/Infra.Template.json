@@ -104,14 +104,6 @@
     "appServiceName": {
       "type": "string",
       "value": "[parameters('appServiceName')]"
-    },
-    "appServicePlanName": {
-      "type": "string",
-      "value": "[variables('appServicePlanName')]"
-    },
-    "containerRegistryName": {
-      "type": "string",
-      "value": "[variables('containerRegistryName')]"
     }
   }
 }
