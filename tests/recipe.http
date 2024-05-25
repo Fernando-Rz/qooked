@@ -1,5 +1,5 @@
 ### Health Check Endpoint
-GET https://qooked.azurewebsites.net/health-check
+GET https://qooked.azurewebsites.net/health
 
 ### Create Recipe
 PUT https://qooked.azurewebsites.net/recipes/sandwich

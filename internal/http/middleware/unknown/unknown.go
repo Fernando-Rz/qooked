@@ -1,4 +1,4 @@
-package notfound
+package unknown
 
 import (
 	"net/http"
@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NotFound(ctx *gin.Context) {
+func UnknownPath(ctx *gin.Context) {
 	ctx.IndentedJSON(
 		http.StatusNotFound,
 		gin.H{

@@ -3,7 +3,7 @@ package main
 import (
 	"qooked/internal/http/controllers/health"
 	"qooked/internal/http/controllers/recipe"
-	"qooked/internal/http/middleware/notfound"
+	"qooked/internal/http/middleware/unknown"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +13,7 @@ func main() {
     router := gin.Default()
 
 	// health check routes
-	router.GET("/health-check", health.HealthCheck)
+	router.GET("/health", health.HealthCheck)
 
 	// recipe scope routes
     router.GET("/recipes", recipe.GetRecipes)
@@ -22,7 +22,7 @@ func main() {
 	router.DELETE("/recipes/:recipe-name", recipe.DeleteRecipe)
 
 	// route not found
-	router.Use(notfound.NotFound)
+	router.Use(unknown.UnknownPath)
 
 	// run server
 	router.Run()
