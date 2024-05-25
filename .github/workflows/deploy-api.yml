@@ -54,7 +54,7 @@ jobs:
               },
               {
                 "name": "API_BUILD_VERSION",
-                "value": "${{ github.sha }}"
+                "value": "${{ github.run_id }}"
               }
             ]
 
