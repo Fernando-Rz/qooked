@@ -61,7 +61,7 @@
           "appSettings": [],
           "autoSwapSlotName": "",
           "detailedErrorLoggingEnabled": false,
-          "healthCheckPath": "/health-check",
+          "healthCheckPath": "/health",
           "httpLoggingEnabled": false,
           "ipSecurityRestrictions": [],
           "ipSecurityRestrictionsDefaultAction": "Allow",
