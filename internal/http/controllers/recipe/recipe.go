@@ -7,28 +7,6 @@ import (
 )
 
 func GetRecipes(ctx *gin.Context) {
-	// var recipes = []models.Recipe{
-	// 	{
-	// 		Name: "",
-	// 		Description: "",
-	// 		Time: models.RecipeTime{
-	// 			Prep: "2",
-	// 			Cook: "2",
-	// 			Total: "2",
-	// 		},        
-	// 		Servings: 1,
-	// 		Ingredients: []models.Ingredient{
-	// 			{
-	// 				Name: "bread",
-	// 				Amount: "4 slices",
-	// 			},
-	// 		},
-	// 		Instructions: []string{
-	// 			"2",
-	// 		},
-	// 	},
-	// }
-
 	ctx.IndentedJSON(
 		http.StatusOK,
 		gin.H{
