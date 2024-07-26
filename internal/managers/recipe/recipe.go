@@ -13,22 +13,6 @@ type RecipeManager struct {
     databaseClient doc.DocumentDatabaseClient
 }
 
-func (recipeManager *RecipeManager) GetRecipe(recipeId string) (models.Recipe, error) {
-	document, err := recipeManager.databaseClient.GetDocument(collectionName, recipeId)
-
-	if err != nil {
-		return models.Recipe{}, err
-	}
-    
-	recipe, err := convertDocToRecipe(document)
-
-	if err != nil {
-		return models.Recipe{}, err
-	}
-
-	return recipe, nil
-}
-
 func (recipeManager *RecipeManager) GetRecipes() ([]models.Recipe, error) {
 	documents, err := recipeManager.databaseClient.GetDocuments(collectionName)
 	var recipes []models.Recipe
@@ -48,6 +32,22 @@ func (recipeManager *RecipeManager) GetRecipes() ([]models.Recipe, error) {
 	}
 
 	return recipes, nil
+}
+
+func (recipeManager *RecipeManager) GetRecipe(recipeId string) (models.Recipe, error) {
+	document, err := recipeManager.databaseClient.GetDocument(collectionName, recipeId)
+
+	if err != nil {
+		return models.Recipe{}, err
+	}
+    
+	recipe, err := convertDocToRecipe(document)
+
+	if err != nil {
+		return models.Recipe{}, err
+	}
+
+	return recipe, nil
 }
 
 func (recipeManager *RecipeManager) UpsertRecipe(recipeId string, recipe models.Recipe) error {

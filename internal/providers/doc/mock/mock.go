@@ -22,23 +22,6 @@ func (db *MockDocumentDatabaseClient) Initialize(endpoint string) error {
 	return nil
 }
 
-func (db *MockDocumentDatabaseClient) GetDocument(collection string, documentId string) (doc.Document, error) {
-	db.mutex.RLock()
-	defer db.mutex.RUnlock()
-
-	documents, ok := db.collections[collection]
-	if !ok {
-		return doc.Document{}, errors.New("collection not found")
-	}
-
-	document, ok := documents[documentId]
-	if !ok {
-		return doc.Document{}, errors.New("document not found")
-	}
-
-	return document, nil
-}
-
 func (db *MockDocumentDatabaseClient) GetDocuments(collection string) ([]doc.Document, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
@@ -54,6 +37,23 @@ func (db *MockDocumentDatabaseClient) GetDocuments(collection string) ([]doc.Doc
 	}
 
 	return result, nil
+}
+
+func (db *MockDocumentDatabaseClient) GetDocument(collection string, documentId string) (doc.Document, error) {
+	db.mutex.RLock()
+	defer db.mutex.RUnlock()
+
+	documents, ok := db.collections[collection]
+	if !ok {
+		return doc.Document{}, errors.New("collection not found")
+	}
+
+	document, ok := documents[documentId]
+	if !ok {
+		return doc.Document{}, errors.New("document not found")
+	}
+
+	return document, nil
 }
 
 func (db *MockDocumentDatabaseClient) UpsertDocument(collection string, documentId string, document doc.Document) error {
