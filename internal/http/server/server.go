@@ -1,8 +1,10 @@
 package server
 
+import "qooked/internal/config"
+
 // Server definition
 type Server struct {
-	// configuration class
+	config config.Config
 	// instrumentation class
 	// router class
 }

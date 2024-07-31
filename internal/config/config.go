@@ -2,11 +2,12 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 )
 
 type Config struct {
-	Environment string `json:"environment"`
+	TestEnvironment bool `json:"testEnvironment"`
 	DocumentDatabaseUrl string `json:"documentDatabaseUrl"`
 }
 
@@ -27,4 +28,12 @@ func InitializeConfig(fileName string) (Config, error) {
 	}
 
 	return config, nil
+}
+
+func (config *Config) Validate() error {
+	if config.TestEnvironment && config.DocumentDatabaseUrl == "" {
+		return fmt.Errorf("the configuration 'documentDatabaseUrl' is required for production environments")
+	}
+
+	return nil
 }
