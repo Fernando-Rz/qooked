@@ -13,44 +13,44 @@ type RecipeManager struct {
     databaseClient doc.DocumentDatabaseClient
 }
 
-func (recipeManager *RecipeManager) GetRecipes() ([]models.Recipe, error) {
+func (recipeManager *RecipeManager) GetRecipes() (*[]models.Recipe, error) {
 	documents, err := recipeManager.databaseClient.GetDocuments(collectionName)
 	var recipes []models.Recipe
 
 	if err != nil {
-		return []models.Recipe{}, err
+		return nil, err
 	}
 
-	for _, document := range documents {
-		recipe, err := convertDocToRecipe(document)
+	for _, document := range *documents {
+		recipe, err := convertDocToRecipe(&document)
 
 		if err != nil {
-			return []models.Recipe{}, err
+			return nil, err
 		}
 
-		recipes = append(recipes, recipe)
+		recipes = append(recipes, *recipe)
 	}
 
-	return recipes, nil
+	return &recipes, nil
 }
 
-func (recipeManager *RecipeManager) GetRecipe(recipeId string) (models.Recipe, error) {
+func (recipeManager *RecipeManager) GetRecipe(recipeId string) (*models.Recipe, error) {
 	document, err := recipeManager.databaseClient.GetDocument(collectionName, recipeId)
 
 	if err != nil {
-		return models.Recipe{}, err
+		return nil, err
 	}
     
 	recipe, err := convertDocToRecipe(document)
 
 	if err != nil {
-		return models.Recipe{}, err
+		return nil, err
 	}
 
 	return recipe, nil
 }
 
-func (recipeManager *RecipeManager) UpsertRecipe(recipeId string, recipe models.Recipe) error {
+func (recipeManager *RecipeManager) UpsertRecipe(recipeId string, recipe *models.Recipe) error {
 	document, err := convertRecipeToDoc(recipe)
 
 	if err != nil {
@@ -76,25 +76,25 @@ func (recipeManager *RecipeManager) DeleteRecipe(recipeId string) error {
 	return nil
 }
 
-func convertDocToRecipe(document doc.Document) (models.Recipe, error) {
+func convertDocToRecipe(document *doc.Document) (*models.Recipe, error) {
 	var recipe models.Recipe
 
     err := json.Unmarshal(document.Data, &recipe)
     if err != nil {
-        return models.Recipe{}, err
+        return nil, err
     }
 
-	return recipe, nil
+	return &recipe, nil
 }
 
-func convertRecipeToDoc(recipe models.Recipe) (doc.Document, error){
+func convertRecipeToDoc(recipe *models.Recipe) (*doc.Document, error){
 	var document doc.Document
-	data, err := json.Marshal(recipe)
+	data, err := json.Marshal(*recipe)
    
 	if err != nil {
-        return doc.Document{}, err
+        return nil, err
     }
 
 	document.Data = data
-	return document, nil
+	return &document, nil
 }

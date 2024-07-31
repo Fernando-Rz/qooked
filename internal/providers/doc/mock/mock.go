@@ -22,7 +22,7 @@ func (db *MockDocumentDatabaseClient) Initialize(endpoint string) error {
 	return nil
 }
 
-func (db *MockDocumentDatabaseClient) GetDocuments(collection string) ([]doc.Document, error) {
+func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]doc.Document, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 
@@ -36,27 +36,27 @@ func (db *MockDocumentDatabaseClient) GetDocuments(collection string) ([]doc.Doc
 		result = append(result, doc)
 	}
 
-	return result, nil
+	return &result, nil
 }
 
-func (db *MockDocumentDatabaseClient) GetDocument(collection string, documentId string) (doc.Document, error) {
+func (db *MockDocumentDatabaseClient) GetDocument(collection string, documentId string) (*doc.Document, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 
 	documents, ok := db.collections[collection]
 	if !ok {
-		return doc.Document{}, errors.New("collection not found")
+		return nil, errors.New("collection not found")
 	}
 
 	document, ok := documents[documentId]
 	if !ok {
-		return doc.Document{}, errors.New("document not found")
+		return nil, errors.New("document not found")
 	}
 
-	return document, nil
+	return &document, nil
 }
 
-func (db *MockDocumentDatabaseClient) UpsertDocument(collection string, documentId string, document doc.Document) error {
+func (db *MockDocumentDatabaseClient) UpsertDocument(collection string, documentId string, document *doc.Document) error {
 	db.mutex.Lock()
 	defer db.mutex.Unlock()
 
@@ -64,7 +64,7 @@ func (db *MockDocumentDatabaseClient) UpsertDocument(collection string, document
 		db.collections[collection] = make(map[string]doc.Document)
 	}
 
-	db.collections[collection][documentId] = document
+	db.collections[collection][documentId] = *document
 	return nil
 }
 

@@ -22,7 +22,7 @@ func (recipeController *RecipeController) GetRecipes(ctx *gin.Context) {
 
 	ctx.IndentedJSON(
 		http.StatusOK,
-		recipes)
+		*recipes) // might need to update
 }
 
 func (recipeController *RecipeController) GetRecipe(ctx *gin.Context) {
