@@ -11,6 +11,12 @@ type RecipeController struct {
 	recipeManager recipe.RecipeManager
 }
 
+func NewRecipeController(recipeManager recipe.RecipeManager) *RecipeController {
+	return &RecipeController{
+		recipeManager: recipeManager,
+	}
+}
+
 func (recipeController *RecipeController) GetRecipes(ctx *gin.Context) {
 	recipes, err := recipeController.recipeManager.GetRecipes()
 

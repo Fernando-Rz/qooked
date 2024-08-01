@@ -1,28 +1,26 @@
 package main
 
 import (
-	"qooked/internal/http/controllers/health"
-	"qooked/internal/http/middleware/unknown"
-
-	"github.com/gin-gonic/gin"
+	"log"
+	"os"
+	"qooked/internal/http/server"
+	"strings"
 )
 
 func main() {
-	// initialize server
-    router := gin.Default()
+    environment, exists := os.LookupEnv("QOOKED_ENV")
+    
+    if !exists {
+        environment = "local"
+    }
 
-	// health check routes
-	router.GET("/health", health.HealthCheck)
+	server, err := server.NewServer(environment)
 
-	// recipe scope routes
-    // router.GET("/recipes", recipe.GetRecipes)
-	// router.GET("/recipes/:recipe-name", recipe.GetRecipe)
-	// router.PUT("/recipes/:recipe-name", recipe.PutRecipe)
-	// router.DELETE("/recipes/:recipe-name", recipe.DeleteRecipe)
+	if err != nil {
+		log.Fatalf("\n%s\nFailed to initialize server: %v\n%s\n", strings.Repeat("-", 100), err, strings.Repeat("-", 100))
+	}
 
-	// route not found
-	router.Use(unknown.UnknownPath)
-
-	// run server
-	router.Run()
+	if err := server.Run(); err != nil {
+		log.Fatalf("\n%s\nServer failed to run: %v\n%s\n", strings.Repeat("-", 100), err, strings.Repeat("-", 100))
+	}
 }

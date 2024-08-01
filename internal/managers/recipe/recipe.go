@@ -13,6 +13,12 @@ type RecipeManager struct {
     databaseClient documentdb.DocumentDatabaseClient
 }
 
+func NewRecipeManager(databaseClient documentdb.DocumentDatabaseClient) *RecipeManager {
+	return &RecipeManager{
+		databaseClient: databaseClient,
+	}
+}
+
 func (recipeManager *RecipeManager) GetRecipes() (*[]models.Recipe, error) {
 	documents, err := recipeManager.databaseClient.GetDocuments(collectionName)
 	var recipes []models.Recipe

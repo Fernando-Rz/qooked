@@ -11,7 +11,7 @@ type Config struct {
 	DocumentDatabaseUrl string `json:"documentDatabaseUrl"`
 }
 
-func InitializeConfig(fileName string) (Config, error) {
+func NewConfig(fileName string) (Config, error) {
 	file, err := os.Open(fileName)
 
 	if err != nil {
@@ -31,7 +31,7 @@ func InitializeConfig(fileName string) (Config, error) {
 }
 
 func (config *Config) Validate() error {
-	if config.TestEnvironment && config.DocumentDatabaseUrl == "" {
+	if !config.TestEnvironment && config.DocumentDatabaseUrl == "" {
 		return fmt.Errorf("the configuration 'documentDatabaseUrl' is required for production environments")
 	}
 
