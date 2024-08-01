@@ -2,7 +2,9 @@ package recipe
 
 import (
 	"net/http"
+	"qooked/internal/documentdb"
 	"qooked/internal/managers/recipe"
+	"qooked/internal/models"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,36 +23,71 @@ func (recipeController *RecipeController) GetRecipes(ctx *gin.Context) {
 	recipes, err := recipeController.recipeManager.GetRecipes()
 
 	if err != nil {
-		ctx.IndentedJSON(
-			http.StatusInternalServerError,
-			err)
+		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipes."})
+		return
 	}
 
-	ctx.IndentedJSON(
-		http.StatusOK,
-		*recipes) // might need to update
+	ctx.IndentedJSON(http.StatusOK, *recipes)
 }
 
 func (recipeController *RecipeController) GetRecipe(ctx *gin.Context) {
-	ctx.IndentedJSON(
-		http.StatusOK,
-		gin.H{
-			"message": "GetRecipe called.",
-		})
+	recipeName := ctx.Param("recipe-name")
+	if recipeName == "" {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Recipe name is required."})
+		return
+	}
+
+	recipe, err := recipeController.recipeManager.GetRecipe(recipeName)
+	if err != nil {
+		if err == documentdb.ErrDocumentNotFound {
+			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": "Recipe not found."})
+		} else {
+			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipe."})
+		}
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, *recipe)
 }
 
 func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
-	ctx.IndentedJSON(
-		http.StatusOK,
-		gin.H{
-			"message": "PutRecipe called.",
-		})
+    recipeName := ctx.Param("recipe-name")
+	if recipeName == "" {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Recipe name is required."})
+		return
+	}
+    
+    var recipeData models.Recipe
+    if err := ctx.ShouldBindJSON(&recipeData); err != nil {
+        ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid request body."})
+        return
+    }
+
+    recipeData.Name = recipeName
+    
+    if err := recipeController.recipeManager.UpsertRecipe(recipeName, &recipeData); err != nil {
+        ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update recipe."})
+        return
+    }
+
+    ctx.IndentedJSON(http.StatusOK, gin.H{"message": "Recipe successfully created or updated."})
 }
 
 func (recipeController *RecipeController) DeleteRecipe(ctx *gin.Context) {
-	ctx.IndentedJSON(
-		http.StatusOK,
-		gin.H{
-			"message": "DeleteRecipe called.",
-		})
+	recipeName := ctx.Param("recipe-name")
+	if recipeName == "" {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Recipe name is required."})
+		return
+	}
+
+	if err := recipeController.recipeManager.DeleteRecipe(recipeName); err != nil {
+		if err == documentdb.ErrDocumentNotFound {
+			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": "Recipe not found."})
+		} else {
+			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete recipe."})
+		}
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, gin.H{"message": "Recipe successfully deleted."})
 }
