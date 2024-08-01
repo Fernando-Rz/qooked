@@ -10,6 +10,6 @@ func HealthCheck(ctx *gin.Context) {
 	ctx.IndentedJSON(
 		http.StatusOK,
 		gin.H{
-			"message": "Server is up and running V2!",
+			"message": "Server is up and running V3!",
 		})
 }
