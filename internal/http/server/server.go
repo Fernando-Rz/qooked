@@ -46,8 +46,11 @@ func NewServer(environmentName string) (*Server, error) {
 
 func (server *Server) initializeConfig(fileName string) error {
 	config, err := config.NewConfig(fileName)
-	
 	if err != nil {
+		return err
+	}
+
+	if err := config.Validate(); err != nil {
 		return err
 	}
 
