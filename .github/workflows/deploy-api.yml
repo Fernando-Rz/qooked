@@ -34,7 +34,7 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Set web app ACR authentication
+      - name: Set application settings for web app
         uses: Azure/appservice-settings@v1
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
@@ -55,6 +55,10 @@ jobs:
               {
                 "name": "API_BUILD_VERSION",
                 "value": "${{ github.run_id }}"
+              },
+              {
+                "name": "QOOKED_ENV",
+                "value": "prod"
               }
             ]
 
