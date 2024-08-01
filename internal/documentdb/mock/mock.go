@@ -2,7 +2,7 @@ package mock
 
 import (
 	"errors"
-	"qooked/internal/providers/documentdb"
+	"qooked/internal/documentdb"
 	"sync"
 )
 
