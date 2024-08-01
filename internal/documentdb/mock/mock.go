@@ -1,7 +1,6 @@
 package mock
 
 import (
-	"errors"
 	"qooked/internal/documentdb"
 	"sync"
 )
@@ -28,7 +27,7 @@ func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]docume
 
 	documents, ok := db.collections[collection]
 	if !ok {
-		return nil, errors.New("collection not found")
+		return nil, documentdb.ErrCollectionNotFound
 	}
 
 	var result []documentdb.Document
@@ -45,12 +44,12 @@ func (db *MockDocumentDatabaseClient) GetDocument(collection string, documentId 
 
 	documents, ok := db.collections[collection]
 	if !ok {
-		return nil, errors.New("collection not found")
+		return nil, documentdb.ErrCollectionNotFound
 	}
 
 	document, ok := documents[documentId]
 	if !ok {
-		return nil, errors.New("document not found")
+		return nil, documentdb.ErrDocumentNotFound
 	}
 
 	return &document, nil
@@ -74,11 +73,11 @@ func (db *MockDocumentDatabaseClient) DeleteDocument(collection string, document
 
 	documents, ok := db.collections[collection]
 	if !ok {
-		return errors.New("collection not found")
+		return documentdb.ErrCollectionNotFound
 	}
 
 	if _, ok := documents[documentId]; !ok {
-		return errors.New("document not found")
+		return documentdb.ErrDocumentNotFound
 	}
 
 	delete(documents, documentId)
