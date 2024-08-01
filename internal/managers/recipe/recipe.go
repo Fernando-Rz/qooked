@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 
 	"qooked/internal/models"
-	"qooked/internal/providers/doc"
+	"qooked/internal/providers/documentdb"
 )
 
 const collectionName = "recipe"
 
 type RecipeManager struct {
-    databaseClient doc.DocumentDatabaseClient
+    databaseClient documentdb.DocumentDatabaseClient
 }
 
 func (recipeManager *RecipeManager) GetRecipes() (*[]models.Recipe, error) {
@@ -76,7 +76,7 @@ func (recipeManager *RecipeManager) DeleteRecipe(recipeId string) error {
 	return nil
 }
 
-func convertDocToRecipe(document *doc.Document) (*models.Recipe, error) {
+func convertDocToRecipe(document *documentdb.Document) (*models.Recipe, error) {
 	var recipe models.Recipe
 
     err := json.Unmarshal(document.Data, &recipe)
@@ -87,8 +87,8 @@ func convertDocToRecipe(document *doc.Document) (*models.Recipe, error) {
 	return &recipe, nil
 }
 
-func convertRecipeToDoc(recipe *models.Recipe) (*doc.Document, error){
-	var document doc.Document
+func convertRecipeToDoc(recipe *models.Recipe) (*documentdb.Document, error){
+	var document documentdb.Document
 	data, err := json.Marshal(*recipe)
    
 	if err != nil {

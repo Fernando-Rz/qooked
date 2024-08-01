@@ -2,18 +2,18 @@ package mock
 
 import (
 	"errors"
-	"qooked/internal/providers/doc"
+	"qooked/internal/providers/documentdb"
 	"sync"
 )
 
 type MockDocumentDatabaseClient struct {
 	mutex       sync.RWMutex
-    collections map[string]map[string]doc.Document
+    collections map[string]map[string]documentdb.Document
 }
 
 func NewMockDocumentDatabaseClient() *MockDocumentDatabaseClient {
 	return &MockDocumentDatabaseClient{
-		collections: make(map[string]map[string]doc.Document),
+		collections: make(map[string]map[string]documentdb.Document),
 	}
 }
 
@@ -22,7 +22,7 @@ func (db *MockDocumentDatabaseClient) InitializeClient(endpoint string) error {
 	return nil
 }
 
-func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]doc.Document, error) {
+func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]documentdb.Document, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 
@@ -31,7 +31,7 @@ func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]doc.Do
 		return nil, errors.New("collection not found")
 	}
 
-	var result []doc.Document
+	var result []documentdb.Document
 	for _, doc := range documents {
 		result = append(result, doc)
 	}
@@ -39,7 +39,7 @@ func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]doc.Do
 	return &result, nil
 }
 
-func (db *MockDocumentDatabaseClient) GetDocument(collection string, documentId string) (*doc.Document, error) {
+func (db *MockDocumentDatabaseClient) GetDocument(collection string, documentId string) (*documentdb.Document, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 
@@ -56,12 +56,12 @@ func (db *MockDocumentDatabaseClient) GetDocument(collection string, documentId 
 	return &document, nil
 }
 
-func (db *MockDocumentDatabaseClient) UpsertDocument(collection string, documentId string, document *doc.Document) error {
+func (db *MockDocumentDatabaseClient) UpsertDocument(collection string, documentId string, document *documentdb.Document) error {
 	db.mutex.Lock()
 	defer db.mutex.Unlock()
 
 	if _, ok := db.collections[collection]; !ok {
-		db.collections[collection] = make(map[string]doc.Document)
+		db.collections[collection] = make(map[string]documentdb.Document)
 	}
 
 	db.collections[collection][documentId] = *document

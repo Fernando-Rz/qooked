@@ -1,4 +1,4 @@
-package doc
+package documentdb
 
 type Document struct{
 	Data []byte
