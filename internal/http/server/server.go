@@ -25,7 +25,8 @@ type Server struct {
 func NewServer(environmentName string) (*Server, error) {
 	server := Server{}
 	
-	err := server.initializeConfig(environmentName + ".json")
+	configFilePath := "cmd/api/configs/" + environmentName + ".json"
+	err := server.initializeConfig(configFilePath)
 	if err != nil {
 		return nil, err
 	}
