@@ -17,7 +17,7 @@ func NewMockDocumentDatabaseClient() *MockDocumentDatabaseClient {
 	}
 }
 
-func (db *MockDocumentDatabaseClient) Initialize(endpoint string) error {
+func (db *MockDocumentDatabaseClient) InitializeClient(endpoint string) error {
 	// No initialization required for in-memory implementation
 	return nil
 }
