@@ -1,8 +1,11 @@
-### Health Check Endpoint
-GET https://qooked.azurewebsites.net/health
+### Health Check
+GET http://localhost:8080/health
+
+### Get Recipes
+GET http://localhost:8080/recipes
 
 ### Create Recipe
-PUT https://qooked.azurewebsites.net/recipes/sandwich
+PUT http://localhost:8080/recipes/sandwich
 Content-Type: application/json
 
 {
@@ -45,3 +48,12 @@ Content-Type: application/json
     "6. Repeat for second sandwich"
   ]
 }
+
+### Get Recipe
+GET http://localhost:8080/recipes/sandwich
+
+### Delete Recipe
+DELETE http://localhost:8080/recipes/sandwich
+
+### Unknown Path Check
+GET http://localhost:8080/unknown
