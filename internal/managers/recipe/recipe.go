@@ -3,8 +3,8 @@ package recipe
 import (
 	"encoding/json"
 
+	"qooked/internal/documentdb"
 	"qooked/internal/models"
-	"qooked/internal/providers/documentdb"
 )
 
 const collectionName = "recipe"
