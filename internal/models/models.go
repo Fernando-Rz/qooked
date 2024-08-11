@@ -2,6 +2,7 @@ package models
 
 // recipe definition
 type Recipe struct {
+    UserID       string
     Name         string       `json:"name"`
     Description  string       `json:"description"`
     Time         RecipeTime   `json:"time"`
@@ -21,4 +22,12 @@ type RecipeTime struct {
 type Ingredient struct {
     Name   string `json:"name"`
     Amount string `json:"amount"`
+}
+
+// user accounts
+type User struct {
+    ID       string `json:"id"`
+    Username string `json:"username"`
+    Email    string `json:"email"`
+    Password string `json:"password"` // gotta secure this
 }
