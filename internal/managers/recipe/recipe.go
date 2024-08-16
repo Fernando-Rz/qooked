@@ -7,10 +7,11 @@ import (
 	"qooked/internal/models"
 )
 
-const collectionName = "recipe"
+const collectionName = "recipes"
 
 type RecipeManager struct {
     databaseClient documentdb.DocumentDatabaseClient
+	// instrumentation field
 }
 
 func NewRecipeManager(databaseClient documentdb.DocumentDatabaseClient) *RecipeManager {
@@ -19,9 +20,10 @@ func NewRecipeManager(databaseClient documentdb.DocumentDatabaseClient) *RecipeM
 	}
 }
 
+// TODO: add logging
 func (recipeManager *RecipeManager) GetRecipes() (*[]models.Recipe, error) {
 	documents, err := recipeManager.databaseClient.GetDocuments(collectionName)
-	var recipes []models.Recipe
+	recipes := []models.Recipe{}
 
 	if err != nil {
 		return nil, err

@@ -17,7 +17,7 @@ func NewMockDocumentDatabaseClient() *MockDocumentDatabaseClient {
 }
 
 func (db *MockDocumentDatabaseClient) InitializeClient(endpoint string) error {
-	// No initialization required for in-memory implementation
+	db.collections["recipes"] = make(map[string]documentdb.Document)
 	return nil
 }
 
@@ -30,7 +30,7 @@ func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]docume
 		return nil, documentdb.ErrCollectionNotFound
 	}
 
-	var result []documentdb.Document
+	result := []documentdb.Document{}
 	for _, doc := range documents {
 		result = append(result, doc)
 	}
@@ -58,10 +58,6 @@ func (db *MockDocumentDatabaseClient) GetDocument(collection string, documentId 
 func (db *MockDocumentDatabaseClient) UpsertDocument(collection string, documentId string, document *documentdb.Document) error {
 	db.mutex.Lock()
 	defer db.mutex.Unlock()
-
-	if _, ok := db.collections[collection]; !ok {
-		db.collections[collection] = make(map[string]documentdb.Document)
-	}
 
 	db.collections[collection][documentId] = *document
 	return nil
