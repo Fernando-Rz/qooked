@@ -22,3 +22,8 @@ EXPOSE 8080
 
 # Command to run the executable
 CMD ["./main"]
+
+# Health check to verify API is up and running
+HEALTHCHECK --interval=30s --timeout=30s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+  
