@@ -16,7 +16,7 @@ func NewMockDocumentDatabaseClient() *MockDocumentDatabaseClient {
 	}
 }
 
-func (db *MockDocumentDatabaseClient) InitializeClient(endpoint string) error {
+func (db *MockDocumentDatabaseClient) InitializeClient(endpointUrl string, databaseName string) error {
 	db.collections["recipes"] = make(map[string]documentdb.Document)
 	return nil
 }

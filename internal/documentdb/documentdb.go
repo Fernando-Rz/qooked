@@ -12,7 +12,7 @@ type Document struct{
 }
 
 type DocumentDatabaseClient interface {
-	InitializeClient(endpoint string) error
+	InitializeClient(endpointUrl string, databaseName string) error
 	GetDocuments(collection string) (*[]Document, error)
 	GetDocument(collection string, documentId string) (*Document, error)
 	UpsertDocument(collection string, documentId string, document *Document) error

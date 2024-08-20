@@ -9,6 +9,7 @@ import (
 type Config struct {
 	TestEnvironment bool `json:"testEnvironment"`
 	DocumentDatabaseUrl string `json:"documentDatabaseUrl"`
+	DatabaseName string `json:"databaseName"`
 }
 
 func NewConfig(fileName string) (Config, error) {
@@ -33,6 +34,10 @@ func NewConfig(fileName string) (Config, error) {
 func (config *Config) Validate() error {
 	if !config.TestEnvironment && config.DocumentDatabaseUrl == "" {
 		return fmt.Errorf("the configuration 'documentDatabaseUrl' is required for production environments")
+	}
+
+	if !config.TestEnvironment && config.DatabaseName == "" {
+		return fmt.Errorf("the configuration 'databaseName' is required for production environments")
 	}
 
 	return nil

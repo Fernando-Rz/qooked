@@ -77,7 +77,10 @@ func (server *Server) initializeDocumentDatabaseClient() error {
 		server.documentDatabaseClient = mockDatabaseClient.NewMockDocumentDatabaseClient()
 	}
 
-	err := server.documentDatabaseClient.InitializeClient(server.config.DocumentDatabaseUrl)
+	err := server.documentDatabaseClient.InitializeClient(
+		server.config.DocumentDatabaseUrl,
+		server.config.DatabaseName)
+
 	if err != nil {
 		return err
 	}
