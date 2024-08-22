@@ -18,6 +18,9 @@
           "throughput": "400"
         }
       ]
+    },
+    "cosmosDbLocation": {
+      "value": "Central US"
     }
   }
 }
