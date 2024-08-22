@@ -3,6 +3,7 @@ package server
 import (
 	"qooked/internal/config"
 	"qooked/internal/documentdb"
+	"qooked/internal/documentdb/azure/cosmos"
 	mockDatabaseClient "qooked/internal/documentdb/mock"
 	"qooked/internal/http/controllers/health"
 	recipeController "qooked/internal/http/controllers/recipe"
@@ -75,6 +76,8 @@ func (server *Server) initializeInstrumentation() error {
 func (server *Server) initializeDocumentDatabaseClient() error {
 	if server.config.TestEnvironment {
 		server.documentDatabaseClient = mockDatabaseClient.NewMockDocumentDatabaseClient()
+	} else {
+		server.documentDatabaseClient = cosmos.NewCosmosDocumentDatabaseClient()
 	}
 
 	err := server.documentDatabaseClient.InitializeClient(
