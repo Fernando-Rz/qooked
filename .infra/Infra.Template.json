@@ -26,6 +26,12 @@
       "metadata": {
         "description": "Location for all resources."
       }
+    },
+    "servicePrincipalObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "Object ID of the service principal used to connect to cosmos locally."
+      }
     }
   },
   "variables": {
@@ -36,10 +42,11 @@
     "cosmosDbAccountName": "[concat(parameters('appServiceName'), '-cosmosdb')]",
     "cosmosDbAccountResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbAccountName'))]",
     "cosmosDbDatabaseName": "[concat(parameters('appServiceName'), 'db')]",
+    "cosmosDbBuiltInDataContributorRoleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', variables('cosmosDbAccountName'), '00000000-0000-0000-0000-000000000002')]",
     "localCosmosDbAccountName": "[concat(parameters('appServiceName'), '-local-cosmosdb')]",
     "localCosmosDbAccountResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('localCosmosDbAccountName'))]",
     "localCosmosDbDatabaseName": "[concat(parameters('appServiceName'), 'localdb')]",
-    "cosmosDbBuiltInDataContributorRoleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', variables('cosmosDbAccountName'), '00000000-0000-0000-0000-000000000002')]"
+    "localCosmosDbBuiltInDataContributorRoleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', variables('localCosmosDbAccountName'), '00000000-0000-0000-0000-000000000002')]"
   },
   "resources": [
     {
@@ -283,15 +290,14 @@
     {
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
       "apiVersion": "2023-04-15",
-      "name": "[concat(variables('cosmosDbAccountName'), '/', guid(variables('cosmosDbBuiltInDataContributorRoleDefinitionId'), variables('managedIdentityResourceId')))]",
+      "name": "[concat(variables('localCosmosDbAccountName'), '/', guid(variables('localCosmosDbBuiltInDataContributorRoleDefinitionId'), parameters('servicePrincipalObjectId')))]",
       "properties": {
-        "roleDefinitionId": "[variables('cosmosDbBuiltInDataContributorRoleDefinitionId')]",
-        "principalId": "[reference(variables('managedIdentityResourceId'), '2023-01-31', 'Full').properties.principalId]",
-        "scope": "[variables('cosmosDbAccountResourceId')]"
+        "roleDefinitionId": "[variables('localCosmosDbBuiltInDataContributorRoleDefinitionId')]",
+        "principalId": "[parameters('servicePrincipalObjectId')]",
+        "scope": "[variables('localCosmosDbAccountResourceId')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbAccountName'))]",
-        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]"
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('localCosmosDbAccountName'))]"
       ]
     }
   ],

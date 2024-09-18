@@ -21,6 +21,9 @@
     },
     "cosmosDbLocation": {
       "value": "Central US"
+    },
+    "servicePrincipalObjectId": {
+      "value": "bad142bf-d0e8-43ad-be16-d891f54258e1"
     }
   }
 }
