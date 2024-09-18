@@ -1,5 +1,5 @@
 {
-  "testEnvironment": false,
+  "testEnvironment": true,
   "documentDatabaseUrl": "https://qooked-local-cosmosdb.documents.azure.com:443/",
   "databaseName": "qookedlocaldb"
 }
