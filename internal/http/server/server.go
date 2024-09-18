@@ -97,7 +97,7 @@ func (server *Server) initializeRouter() {
 	server.router.GET("/health", health.HealthCheck)
 
 	// recipe scope routes
-	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient)
+	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
 	recipeController := *recipeController.NewRecipeController(recipeManager)
 
     server.router.GET("/recipes", recipeController.GetRecipes)
