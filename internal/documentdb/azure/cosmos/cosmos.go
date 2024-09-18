@@ -2,9 +2,11 @@ package cosmos
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"qooked/internal/documentdb"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/data/azcosmos"
 )
@@ -95,6 +97,11 @@ func (db *CosmosDocumentDatabaseClient) GetDocument(collection string, documentI
 
 	response, err := container.ReadItem(context.TODO(), partitionKey, documentId, nil)
 	if err != nil {
+		var cosmosError *azcore.ResponseError
+		if errors.As(err, &cosmosError) && cosmosError.StatusCode == 404 {
+			return nil, documentdb.ErrDocumentNotFound
+		}
+
 		return nil, err
 	}
 
@@ -126,6 +133,11 @@ func (db *CosmosDocumentDatabaseClient) DeleteDocument(collection string, docume
 	partitionKey := azcosmos.NewPartitionKeyString(collection)
 
 	if _, err := container.DeleteItem(context.TODO(), partitionKey, documentId, nil); err != nil {
+		var cosmosError *azcore.ResponseError
+		if errors.As(err, &cosmosError) && cosmosError.StatusCode == 404 {
+			return documentdb.ErrDocumentNotFound
+		}
+
 		return err
 	}
 
