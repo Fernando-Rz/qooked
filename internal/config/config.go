@@ -32,12 +32,12 @@ func NewConfig(fileName string) (Config, error) {
 }
 
 func (config *Config) Validate() error {
-	if !config.TestEnvironment && config.DocumentDatabaseUrl == "" {
-		return fmt.Errorf("the configuration 'documentDatabaseUrl' is required for production environments")
+	if config.DocumentDatabaseUrl == "" {
+		return fmt.Errorf("the configuration 'documentDatabaseUrl' is required")
 	}
 
-	if !config.TestEnvironment && config.DatabaseName == "" {
-		return fmt.Errorf("the configuration 'databaseName' is required for production environments")
+	if config.DatabaseName == "" {
+		return fmt.Errorf("the configuration 'databaseName' is required")
 	}
 
 	return nil

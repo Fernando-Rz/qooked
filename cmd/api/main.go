@@ -5,9 +5,17 @@ import (
 	"os"
 	"qooked/internal/http/server"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	
+	if err != nil {
+		log.Fatalf("\n%s\nError loading .env file: %v\n%s\n", strings.Repeat("-", 100), err, strings.Repeat("-", 100))
+	}
+
     environment, exists := os.LookupEnv("QOOKED_ENV")
     
     if !exists {

@@ -42,6 +42,16 @@ func (db *CosmosDocumentDatabaseClient) InitializeClient(endpointUrl string, dat
 	return nil
 }
 
+func (db *CosmosDocumentDatabaseClient) TestConnection() error {
+	_, err := db.client.Read(context.TODO(), nil)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string) (*[]documentdb.Document, error) {
 	documents := []documentdb.Document{}
 

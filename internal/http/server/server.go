@@ -4,7 +4,6 @@ import (
 	"qooked/internal/config"
 	"qooked/internal/documentdb"
 	"qooked/internal/documentdb/azure/cosmos"
-	mockDatabaseClient "qooked/internal/documentdb/mock"
 	"qooked/internal/http/controllers/health"
 	recipeController "qooked/internal/http/controllers/recipe"
 	"qooked/internal/http/middleware/unknown"
@@ -61,9 +60,7 @@ func (server *Server) initializeConfig(fileName string) error {
 }
 
 func (server *Server) initializeInstrumentation() error {
-	if server.config.TestEnvironment {
-		server.instrumentation = mockInstrumentation.NewMockInstrumentation()
-	}
+	server.instrumentation = mockInstrumentation.NewMockInstrumentation()
 
 	err := server.instrumentation.InitializeInstrumentation()
 	if err != nil {
@@ -74,15 +71,17 @@ func (server *Server) initializeInstrumentation() error {
 }
 
 func (server *Server) initializeDocumentDatabaseClient() error {
-	if server.config.TestEnvironment {
-		server.documentDatabaseClient = mockDatabaseClient.NewMockDocumentDatabaseClient()
-	} else {
-		server.documentDatabaseClient = cosmos.NewCosmosDocumentDatabaseClient()
-	}
+	server.documentDatabaseClient = cosmos.NewCosmosDocumentDatabaseClient()
 
 	err := server.documentDatabaseClient.InitializeClient(
 		server.config.DocumentDatabaseUrl,
 		server.config.DatabaseName)
+
+	if err != nil {
+		return err
+	}
+
+	err = server.documentDatabaseClient.TestConnection()
 
 	if err != nil {
 		return err

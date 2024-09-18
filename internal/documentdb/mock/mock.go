@@ -21,6 +21,10 @@ func (db *MockDocumentDatabaseClient) InitializeClient(endpointUrl string, datab
 	return nil
 }
 
+func (db *MockDocumentDatabaseClient) TestConnection() error {
+	return nil
+}
+
 func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]documentdb.Document, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
