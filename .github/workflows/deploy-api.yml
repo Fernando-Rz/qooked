@@ -55,10 +55,6 @@ jobs:
               {
                 "name": "API_BUILD_VERSION",
                 "value": "${{ github.run_id }}"
-              },
-              {
-                "name": "QOOKED_ENV",
-                "value": "prod"
               }
             ]
 

@@ -2,6 +2,8 @@ package models
 
 // recipe definition
 type Recipe struct {
+    Id           string       `json:"id"`
+    PartitionKey string       `json:"partitionKey"`
     Name         string       `json:"name"`
     Description  string       `json:"description"`
     Time         RecipeTime   `json:"time"`

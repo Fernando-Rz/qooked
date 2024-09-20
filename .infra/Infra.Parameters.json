@@ -4,6 +4,26 @@
   "parameters": {
     "appServiceName": {
       "value": "qooked"
+    },
+    "cosmosDbContainers": {
+      "value": [
+        {
+          "name": "recipes",
+          "partitionKey": "/partitionKey",
+          "throughput": "400"
+        },
+        {
+          "name": "users",
+          "partitionKey": "/partitionKey",
+          "throughput": "400"
+        }
+      ]
+    },
+    "cosmosDbLocation": {
+      "value": "Central US"
+    },
+    "servicePrincipalObjectId": {
+      "value": "1f966b40-dffc-453a-95de-bf856274604d"
     }
   }
 }

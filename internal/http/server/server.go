@@ -3,7 +3,7 @@ package server
 import (
 	"qooked/internal/config"
 	"qooked/internal/documentdb"
-	mockDatabaseClient "qooked/internal/documentdb/mock"
+	"qooked/internal/documentdb/azure/cosmos"
 	"qooked/internal/http/controllers/health"
 	recipeController "qooked/internal/http/controllers/recipe"
 	"qooked/internal/http/middleware/unknown"
@@ -60,9 +60,7 @@ func (server *Server) initializeConfig(fileName string) error {
 }
 
 func (server *Server) initializeInstrumentation() error {
-	if server.config.TestEnvironment {
-		server.instrumentation = mockInstrumentation.NewMockInstrumentation()
-	}
+	server.instrumentation = mockInstrumentation.NewMockInstrumentation()
 
 	err := server.instrumentation.InitializeInstrumentation()
 	if err != nil {
@@ -73,11 +71,18 @@ func (server *Server) initializeInstrumentation() error {
 }
 
 func (server *Server) initializeDocumentDatabaseClient() error {
-	if server.config.TestEnvironment {
-		server.documentDatabaseClient = mockDatabaseClient.NewMockDocumentDatabaseClient()
+	server.documentDatabaseClient = cosmos.NewCosmosDocumentDatabaseClient()
+
+	err := server.documentDatabaseClient.InitializeClient(
+		server.config.DocumentDatabaseUrl,
+		server.config.DatabaseName)
+
+	if err != nil {
+		return err
 	}
 
-	err := server.documentDatabaseClient.InitializeClient(server.config.DocumentDatabaseUrl)
+	err = server.documentDatabaseClient.TestConnection()
+
 	if err != nil {
 		return err
 	}
@@ -92,7 +97,7 @@ func (server *Server) initializeRouter() {
 	server.router.GET("/health", health.HealthCheck)
 
 	// recipe scope routes
-	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient)
+	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
 	recipeController := *recipeController.NewRecipeController(recipeManager)
 
     server.router.GET("/recipes", recipeController.GetRecipes)
