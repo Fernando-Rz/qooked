@@ -94,7 +94,16 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "siteConfig": {
           "alwaysOn": true,
-          "appSettings": [],
+          "appSettings": [
+            {
+              "name": "QOOKED_ENV",
+              "value": "prod"
+            },
+            {
+              "name": "AZ_CLIENT_ID",
+              "value": "[reference(variables('managedIdentityResourceId'), '2023-01-31', 'Full').properties.clientId]"
+            }
+          ],
           "autoSwapSlotName": "",
           "detailedErrorLoggingEnabled": false,
           "healthCheckPath": "/health",
