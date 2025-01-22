@@ -8,19 +8,53 @@
         "description": "The name of the App Service."
       }
     },
+    "cosmosDbContainers": {
+      "type": "array",
+      "metadata": {
+        "description": "The containers for the CosmosDB instance."
+      }
+    },
+    "cosmosDbLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "The location for the CosmosDB instance (East US requires quota increase)."
+      }
+    },
     "location": {
       "type": "string",
       "defaultValue": "[resourceGroup().location]",
       "metadata": {
         "description": "Location for all resources."
       }
+    },
+    "servicePrincipalObjectId": {
+      "type": "string",
+      "metadata": {
+        "description": "Object ID of the service principal used to connect to cosmos locally."
+      }
     }
   },
   "variables": {
     "appServicePlanName": "[concat(parameters('appServiceName'), '-plan')]",
-    "containerRegistryName": "[concat(parameters('appServiceName'), 'acr')]"
+    "containerRegistryName": "[concat(parameters('appServiceName'), 'acr')]",
+    "managedIdentityName": "[concat(parameters('appServiceName'), '_managed_identity')]",
+    "managedIdentityResourceId": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]",
+    "cosmosDbAccountName": "[concat(parameters('appServiceName'), '-cosmosdb')]",
+    "cosmosDbAccountResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbAccountName'))]",
+    "cosmosDbDatabaseName": "[concat(parameters('appServiceName'), 'db')]",
+    "cosmosDbBuiltInDataContributorRoleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', variables('cosmosDbAccountName'), '00000000-0000-0000-0000-000000000002')]",
+    "localCosmosDbAccountName": "[concat(parameters('appServiceName'), '-local-cosmosdb')]",
+    "localCosmosDbAccountResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('localCosmosDbAccountName'))]",
+    "localCosmosDbDatabaseName": "[concat(parameters('appServiceName'), 'localdb')]",
+    "localCosmosDbBuiltInDataContributorRoleDefinitionId": "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions', variables('localCosmosDbAccountName'), '00000000-0000-0000-0000-000000000002')]"
   },
   "resources": [
+    {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[variables('managedIdentityName')]",
+      "location": "[parameters('location')]"
+    },
     {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2022-09-01",
@@ -43,8 +77,10 @@
       "name": "[parameters('appServiceName')]",
       "location": "[parameters('location')]",
       "identity": {
-        "type": "None",
-        "userAssignedIdentities": {}
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]": {}
+        }
       },
       "properties": {
         "clientCertEnabled": false,
@@ -58,7 +94,16 @@
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "siteConfig": {
           "alwaysOn": true,
-          "appSettings": [],
+          "appSettings": [
+            {
+              "name": "QOOKED_ENV",
+              "value": "prod"
+            },
+            {
+              "name": "AZURE_CLIENT_ID",
+              "value": "[reference(variables('managedIdentityResourceId'), '2023-01-31', 'Full').properties.clientId]"
+            }
+          ],
           "autoSwapSlotName": "",
           "detailedErrorLoggingEnabled": false,
           "healthCheckPath": "/health",
@@ -73,7 +118,10 @@
           "webSocketsEnabled": false
         }
       },
-      "dependsOn": ["[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"]
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]"
+      ]
     },
     {
       "type": "Microsoft.ContainerRegistry/registries",
@@ -98,6 +146,168 @@
         "publicNetworkAccess": "Enabled",
         "zoneRedundancy": "Disabled"
       }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "name": "[variables('cosmosDbAccountName')]",
+      "location": "[parameters('cosmosDbLocation')]",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "disableLocalAuth": true,
+        "enableAutomaticFailover": false,
+        "enableMultipleWriteLocations": false,
+        "isVirtualNetworkFilterEnabled": false,
+        "virtualNetworkRules": [],
+        "disableKeyBasedMetadataWriteAccess": false,
+        "databaseAccountOfferType": "Standard",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session"
+        },
+        "locations": [
+          {
+            "failoverPriority": 0,
+            "isZoneRedundant": false,
+            "locationName": "[parameters('cosmosDbLocation')]"
+          }
+        ],
+        "capabilities": []
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2023-04-15",
+      "name": "[format('{0}/{1}', variables('cosmosDbAccountName'), variables('cosmosDbDatabaseName'))]",
+      "properties": {
+        "resource": {
+          "id": "[variables('cosmosDbDatabaseName')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbAccountName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "containerCopy",
+        "count": "[length(parameters('cosmosDbContainers'))]"
+      },
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "name": "[format('{0}/{1}/{2}', variables('cosmosDbAccountName'), variables('cosmosDbDatabaseName'), parameters('cosmosDbContainers')[copyIndex()].name)]",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "resource": {
+          "id": "[parameters('cosmosDbContainers')[copyIndex()].name]",
+          "partitionKey": {
+            "paths": ["[parameters('cosmosDbContainers')[copyIndex()].partitionKey]"],
+            "kind": "Hash"
+          },
+          "indexingPolicy": {
+            "indexingMode": "Consistent"
+          }
+        },
+        "options": {
+          "throughput": "[int(parameters('cosmosDbContainers')[copyIndex()].throughput)]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('cosmosDbAccountName'), variables('cosmosDbDatabaseName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
+      "apiVersion": "2023-04-15",
+      "name": "[concat(variables('cosmosDbAccountName'), '/', guid(variables('cosmosDbBuiltInDataContributorRoleDefinitionId'), variables('managedIdentityResourceId')))]",
+      "properties": {
+        "roleDefinitionId": "[variables('cosmosDbBuiltInDataContributorRoleDefinitionId')]",
+        "principalId": "[reference(variables('managedIdentityResourceId'), '2023-01-31', 'Full').properties.principalId]",
+        "scope": "[variables('cosmosDbAccountResourceId')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('cosmosDbAccountName'))]",
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('managedIdentityName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2023-04-15",
+      "name": "[variables('localCosmosDbAccountName')]",
+      "location": "[parameters('cosmosDbLocation')]",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "enableFreeTier": true,
+        "disableLocalAuth": true,
+        "enableAutomaticFailover": false,
+        "enableMultipleWriteLocations": false,
+        "isVirtualNetworkFilterEnabled": false,
+        "virtualNetworkRules": [],
+        "disableKeyBasedMetadataWriteAccess": false,
+        "databaseAccountOfferType": "Standard",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session"
+        },
+        "locations": [
+          {
+            "failoverPriority": 0,
+            "isZoneRedundant": false,
+            "locationName": "[parameters('cosmosDbLocation')]"
+          }
+        ],
+        "capabilities": []
+      }
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2023-04-15",
+      "name": "[format('{0}/{1}', variables('localCosmosDbAccountName'), variables('localCosmosDbDatabaseName'))]",
+      "properties": {
+        "resource": {
+          "id": "[variables('localCosmosDbDatabaseName')]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('localCosmosDbAccountName'))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "containerCopy",
+        "count": "[length(parameters('cosmosDbContainers'))]"
+      },
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
+      "name": "[format('{0}/{1}/{2}', variables('localCosmosDbAccountName'), variables('localCosmosDbDatabaseName'), parameters('cosmosDbContainers')[copyIndex()].name)]",
+      "apiVersion": "2023-04-15",
+      "properties": {
+        "resource": {
+          "id": "[parameters('cosmosDbContainers')[copyIndex()].name]",
+          "partitionKey": {
+            "paths": ["[parameters('cosmosDbContainers')[copyIndex()].partitionKey]"],
+            "kind": "Hash"
+          },
+          "indexingPolicy": {
+            "indexingMode": "Consistent"
+          }
+        },
+        "options": {
+          "throughput": "[int(parameters('cosmosDbContainers')[copyIndex()].throughput)]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('localCosmosDbAccountName'), variables('localCosmosDbDatabaseName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
+      "apiVersion": "2023-04-15",
+      "name": "[concat(variables('localCosmosDbAccountName'), '/', guid(variables('localCosmosDbBuiltInDataContributorRoleDefinitionId'), parameters('servicePrincipalObjectId')))]",
+      "properties": {
+        "roleDefinitionId": "[variables('localCosmosDbBuiltInDataContributorRoleDefinitionId')]",
+        "principalId": "[parameters('servicePrincipalObjectId')]",
+        "scope": "[variables('localCosmosDbAccountResourceId')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('localCosmosDbAccountName'))]"
+      ]
     }
   ],
   "outputs": {
