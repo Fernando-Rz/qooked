@@ -1,7 +1,7 @@
-### Get Recipes
+### Get Users
 GET https://qooked.azurewebsites.net/users
 
-### Create Recipe
+### Create User
 PUT https://qooked.azurewebsites.net/users/123e4567-e8
 Content-Type: application/json
 
@@ -13,8 +13,8 @@ Content-Type: application/json
   "password": "securepassword123"
 }
 
-### Get Recipe
+### Get User
 GET https://qooked.azurewebsites.net/users/123e4567-e8
 
-### Delete Recipe
+### Delete User
 DELETE https://qooked.azurewebsites.net/users/123e4567-e8

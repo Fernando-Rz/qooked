@@ -16,5 +16,5 @@ Content-Type: application/json
 ### Get User
 GET http://localhost:8080/users/123e4567-e8
 
-### Delete Recipe
+### Delete User
 DELETE http://localhost:8080/users/123e4567-e8
