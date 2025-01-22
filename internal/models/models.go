@@ -2,14 +2,14 @@ package models
 
 // recipe definition
 type Recipe struct {
-    Id           string       `json:"id"`
-    PartitionKey string       `json:"partitionKey"`
-    Name         string       `json:"name"`
-    Description  string       `json:"description"`
-    Time         RecipeTime   `json:"time"`
-    Servings     int          `json:"servings"`
-    Ingredients  []Ingredient `json:"ingredients"`
-    Instructions []string     `json:"instructions"`
+	Id           string       `json:"id"`
+	PartitionKey string       `json:"partitionKey"`
+	Name         string       `json:"name"`
+	Description  string       `json:"description"`
+	Time         RecipeTime   `json:"time"`
+	Servings     int          `json:"servings"`
+	Ingredients  []Ingredient `json:"ingredients"`
+	Instructions []string     `json:"instructions"`
 }
 
 // time it takes to complete recipe
@@ -21,6 +21,16 @@ type RecipeTime struct {
 
 // ingredient definition
 type Ingredient struct {
-    Name   string `json:"name"`
-    Amount string `json:"amount"`
+	Name   string `json:"name"`
+	Amount string `json:"amount"`
+}
+
+// user definition
+type User struct {
+	Id           string `json:"id"`
+	PartitionKey string `json:"partitionKey"`
+	Name         string `json:"name"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
 }
