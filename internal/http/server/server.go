@@ -6,31 +6,33 @@ import (
 	mockDatabaseClient "qooked/internal/documentdb/mock"
 	"qooked/internal/http/controllers/health"
 	recipeController "qooked/internal/http/controllers/recipe"
+	userController "qooked/internal/http/controllers/user"
 	"qooked/internal/http/middleware/unknown"
 	"qooked/internal/instrumentation"
 	mockInstrumentation "qooked/internal/instrumentation/mock"
 	recipeManager "qooked/internal/managers/recipe"
+	userManager "qooked/internal/managers/user"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Server definition
 type Server struct {
-	config config.Config
-	instrumentation instrumentation.Instrumentation
+	config                 config.Config
+	instrumentation        instrumentation.Instrumentation
 	documentDatabaseClient documentdb.DocumentDatabaseClient
-	router *gin.Engine
+	router                 *gin.Engine
 }
 
 func NewServer(environmentName string) (*Server, error) {
 	server := Server{}
-	
+
 	configFilePath := "cmd/api/configs/" + environmentName + ".json"
 	err := server.initializeConfig(configFilePath)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = server.initializeInstrumentation()
 	if err != nil {
 		return nil, err
@@ -55,7 +57,7 @@ func (server *Server) initializeConfig(fileName string) error {
 		return err
 	}
 
-	server.config = config;
+	server.config = config
 	return nil
 }
 
@@ -86,7 +88,7 @@ func (server *Server) initializeDocumentDatabaseClient() error {
 }
 
 func (server *Server) initializeRouter() {
-    server.router = gin.Default()
+	server.router = gin.Default()
 
 	// health check routes
 	server.router.GET("/health", health.HealthCheck)
@@ -95,13 +97,22 @@ func (server *Server) initializeRouter() {
 	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient)
 	recipeController := *recipeController.NewRecipeController(recipeManager)
 
-    server.router.GET("/recipes", recipeController.GetRecipes)
+	server.router.GET("/recipes", recipeController.GetRecipes)
 	server.router.GET("/recipes/:recipe-name", recipeController.GetRecipe)
 	server.router.PUT("/recipes/:recipe-name", recipeController.PutRecipe)
 	server.router.DELETE("/recipes/:recipe-name", recipeController.DeleteRecipe)
 
+	// user scope routes
+	userManager := *userManager.NewUserManager(server.documentDatabaseClient, server.instrumentation)
+	userController := *userController.NewUserController(userManager)
+
+	server.router.GET("/users", userController.GetUsers)
+	server.router.GET("/users/:user-id", userController.GetUser)
+	server.router.PUT("/users/:user-id", userController.PutUser)
+	server.router.DELETE("/users/:user-id", userController.DeleteUser)
+
 	// middlewares
-	server.router.Use(unknown.UnknownPath)	
+	server.router.Use(unknown.UnknownPath)
 }
 
 func (server *Server) Run() error {

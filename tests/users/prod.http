@@ -1,0 +1,20 @@
+### Get Recipes
+GET https://qooked.azurewebsites.net/users
+
+### Create Recipe
+PUT https://qooked.azurewebsites.net/users/123e4567-e8
+Content-Type: application/json
+
+{
+  "id": "123e4567-e8",
+  "name": "John Doe",
+  "username": "johndoe123",
+  "email": "johndoe@example.com",
+  "password": "securepassword123"
+}
+
+### Get Recipe
+GET https://qooked.azurewebsites.net/users/123e4567-e8
+
+### Delete Recipe
+DELETE https://qooked.azurewebsites.net/users/123e4567-e8

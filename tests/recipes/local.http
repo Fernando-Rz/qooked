@@ -1,11 +1,11 @@
 ### Health Check
-GET https://qooked.azurewebsites.net/health
+GET http://localhost:8080/health
 
 ### Get Recipes
-GET https://qooked.azurewebsites.net/recipes
+GET http://localhost:8080/recipes
 
 ### Create Recipe
-PUT https://qooked.azurewebsites.net/recipes/sandwich
+PUT http://localhost:8080/recipes/sandwich
 Content-Type: application/json
 
 {
@@ -50,10 +50,10 @@ Content-Type: application/json
 }
 
 ### Get Recipe
-GET https://qooked.azurewebsites.net/recipes/sandwich
+GET http://localhost:8080/recipes/sandwich
 
 ### Delete Recipe
-DELETE https://qooked.azurewebsites.net/recipes/sandwich
+DELETE http://localhost:8080/recipes/sandwich
 
 ### Unknown Path Check
-GET https://qooked.azurewebsites.net/unknown
+GET http://localhost:8080/unknown
