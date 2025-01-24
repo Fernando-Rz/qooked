@@ -23,6 +23,7 @@ jobs:
         go-version: 1.22.1
 
     - name: Format code with gofmt
+      id: format
       run: gofmt -w .
 
     - name: Commit formatting changes
