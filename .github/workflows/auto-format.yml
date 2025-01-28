@@ -18,7 +18,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}  
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: ${{ github.ref_name }} 
 
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -36,7 +37,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "auto-fix code formatting"
-          git push origin HEAD
+          git push origin $GITHUB_REF_NAME
         else
           echo "No formatting changes detected. Skipping commit."
         fi
