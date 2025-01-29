@@ -2,7 +2,7 @@ package mock
 
 import "log"
 
-type MockInstrumentation struct {}
+type MockInstrumentation struct{}
 
 func NewMockInstrumentation() *MockInstrumentation {
 	return &MockInstrumentation{}

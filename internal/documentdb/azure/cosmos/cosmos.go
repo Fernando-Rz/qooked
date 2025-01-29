@@ -87,7 +87,7 @@ func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string) (*[]docu
 
 func (db *CosmosDocumentDatabaseClient) GetDocument(collection string, documentId string) (*documentdb.Document, error) {
 	document := documentdb.Document{}
-	
+
 	container, err := db.client.NewContainer(collection)
 	if err != nil {
 		return nil, err

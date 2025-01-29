@@ -16,21 +16,21 @@ import (
 
 // Server definition
 type Server struct {
-	config config.Config
-	instrumentation instrumentation.Instrumentation
+	config                 config.Config
+	instrumentation        instrumentation.Instrumentation
 	documentDatabaseClient documentdb.DocumentDatabaseClient
-	router *gin.Engine
+	router                 *gin.Engine
 }
 
 func NewServer(environmentName string) (*Server, error) {
 	server := Server{}
-	
+
 	configFilePath := "cmd/api/configs/" + environmentName + ".json"
 	err := server.initializeConfig(configFilePath)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = server.initializeInstrumentation()
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (server *Server) initializeConfig(fileName string) error {
 		return err
 	}
 
-	server.config = config;
+	server.config = config
 	return nil
 }
 
@@ -91,7 +91,7 @@ func (server *Server) initializeDocumentDatabaseClient() error {
 }
 
 func (server *Server) initializeRouter() {
-    server.router = gin.Default()
+	server.router = gin.Default()
 
 	// health check routes
 	server.router.GET("/health", health.HealthCheck)
@@ -100,13 +100,13 @@ func (server *Server) initializeRouter() {
 	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
 	recipeController := *recipeController.NewRecipeController(recipeManager)
 
-    server.router.GET("/recipes", recipeController.GetRecipes)
+	server.router.GET("/recipes", recipeController.GetRecipes)
 	server.router.GET("/recipes/:recipe-name", recipeController.GetRecipe)
 	server.router.PUT("/recipes/:recipe-name", recipeController.PutRecipe)
 	server.router.DELETE("/recipes/:recipe-name", recipeController.DeleteRecipe)
 
 	// middlewares
-	server.router.Use(unknown.UnknownPath)	
+	server.router.Use(unknown.UnknownPath)
 }
 
 func (server *Server) Run() error {
