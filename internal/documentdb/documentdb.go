@@ -4,10 +4,10 @@ import "errors"
 
 var (
 	ErrCollectionNotFound = errors.New("collection not found")
-	ErrDocumentNotFound = errors.New("document not found")
+	ErrDocumentNotFound   = errors.New("document not found")
 )
 
-type Document struct{
+type Document struct {
 	Data []byte
 }
 
