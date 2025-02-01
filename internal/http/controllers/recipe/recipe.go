@@ -51,28 +51,30 @@ func (recipeController *RecipeController) GetRecipe(ctx *gin.Context) {
 }
 
 func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
-    recipeName := ctx.Param("recipe-name")
+	recipeName := ctx.Param("recipe-name")
 	if recipeName == "" {
 		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Recipe name is required."})
 		return
 	}
-    
-    var recipeData models.Recipe
-    if err := ctx.ShouldBindJSON(&recipeData); err != nil {
-        ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid request body."})
-        return
-    }
 
-    recipeData.Name = recipeName
-	recipeData.Id = recipeName
-	recipeData.PartitionKey = "recipes"
-    
-    if err := recipeController.recipeManager.UpsertRecipe(recipeName, &recipeData); err != nil {
-        ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update recipe."})
-        return
-    }
+	var recipeData models.Recipe
+	if err := ctx.ShouldBindJSON(&recipeData); err != nil {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid request body."})
+		return
+	}
 
-    ctx.IndentedJSON(http.StatusOK, gin.H{"message": "Recipe successfully created or updated."})
+	userId := "user"
+
+	recipeData.Name = recipeName
+	recipeData.RecipeId = recipeName
+	recipeData.UserId = userId
+
+	if err := recipeController.recipeManager.UpsertRecipe(recipeName, &recipeData); err != nil {
+		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update recipe."})
+		return
+	}
+
+	ctx.IndentedJSON(http.StatusOK, gin.H{"message": "Recipe successfully created or updated."})
 }
 
 func (recipeController *RecipeController) DeleteRecipe(ctx *gin.Context) {
