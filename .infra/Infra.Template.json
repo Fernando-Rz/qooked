@@ -285,7 +285,8 @@
             "kind": "Hash"
           },
           "indexingPolicy": {
-            "indexingMode": "Consistent"
+            "indexingMode": "Consistent",
+            "includedPaths": "[parameters('cosmosDbContainers')[copyIndex()].indexPaths]"
           }
         },
         "options": {

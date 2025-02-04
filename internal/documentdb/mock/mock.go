@@ -7,7 +7,7 @@ import (
 
 type MockDocumentDatabaseClient struct {
 	mutex       sync.RWMutex
-    collections map[string]map[string]documentdb.Document
+	collections map[string]map[string]documentdb.Document
 }
 
 func NewMockDocumentDatabaseClient() *MockDocumentDatabaseClient {
@@ -18,6 +18,7 @@ func NewMockDocumentDatabaseClient() *MockDocumentDatabaseClient {
 
 func (db *MockDocumentDatabaseClient) InitializeClient(endpointUrl string, databaseName string) error {
 	db.collections["recipes"] = make(map[string]documentdb.Document)
+	db.collections["users"] = make(map[string]documentdb.Document)
 	return nil
 }
 
