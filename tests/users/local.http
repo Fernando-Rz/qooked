@@ -6,7 +6,6 @@ PUT http://localhost:8080/users/123e4567-e8
 Content-Type: application/json
 
 {
-  "id": "123e4567-e8",
   "name": "John Doe",
   "username": "johndoe123",
   "email": "johndoe@example.com",

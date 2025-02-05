@@ -6,7 +6,7 @@ PUT https://qooked.azurewebsites.net/users/123e4567-e8
 Content-Type: application/json
 
 {
-  "id": "123e4567-e8",
+  "userId": "123e4567-e8",
   "name": "John Doe",
   "username": "johndoe123",
   "email": "johndoe@example.com",

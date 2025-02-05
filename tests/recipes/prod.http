@@ -1,6 +1,3 @@
-### Health Check
-GET https://qooked.azurewebsites.net/health
-
 ### Get Recipes
 GET https://qooked.azurewebsites.net/recipes
 
@@ -54,6 +51,3 @@ GET https://qooked.azurewebsites.net/recipes/sandwich
 
 ### Delete Recipe
 DELETE https://qooked.azurewebsites.net/recipes/sandwich
-
-### Unknown Path Check
-GET https://qooked.azurewebsites.net/unknown

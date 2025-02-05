@@ -27,10 +27,9 @@ type Ingredient struct {
 
 // user definition
 type User struct {
-	Id           string `json:"id"`
-	PartitionKey string `json:"partitionKey"`
-	Name         string `json:"name"`
-	Username     string `json:"username"`
-	Email        string `json:"email"`
-	Password     string `json:"password"`
+	UserId   string `json:"userId"`
+	Name     string `json:"name"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }

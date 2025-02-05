@@ -63,8 +63,8 @@ func (userController *UserController) PutUser(ctx *gin.Context) {
 		return
 	}
 
-	//update this function once partition keys are set
-	userData.PartitionKey = "users"
+	//TODO: Fix this, keeps failing to create the user
+	userData.UserId = userId
 
 	if err := userController.userManager.UpsertUser(userId, &userData); err != nil {
 		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update user."})
