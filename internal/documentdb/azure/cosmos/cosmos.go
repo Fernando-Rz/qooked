@@ -62,8 +62,9 @@ func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string) (*[]docu
 		return nil, err
 	}
 
-	// TODO: Update this to userID to partition data by user
-	partitionKey := azcosmos.NewPartitionKeyString(collection)
+	// TODO: Update this to be the current user's userID to partition data by user
+	userId := "user"
+	partitionKey := azcosmos.NewPartitionKeyString(userId)
 	query := fmt.Sprintf("SELECT * FROM %s c", collection)
 
 	pager := container.NewQueryItemsPager(query, partitionKey, nil)
@@ -87,13 +88,14 @@ func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string) (*[]docu
 
 func (db *CosmosDocumentDatabaseClient) GetDocument(collection string, documentId string) (*documentdb.Document, error) {
 	document := documentdb.Document{}
-	
+
 	container, err := db.client.NewContainer(collection)
 	if err != nil {
 		return nil, err
 	}
 
-	partitionKey := azcosmos.NewPartitionKeyString(collection)
+	userId := "user"
+	partitionKey := azcosmos.NewPartitionKeyString(userId)
 
 	response, err := container.ReadItem(context.TODO(), partitionKey, documentId, nil)
 	if err != nil {
@@ -115,7 +117,8 @@ func (db *CosmosDocumentDatabaseClient) UpsertDocument(collection string, docume
 		return err
 	}
 
-	partitionKey := azcosmos.NewPartitionKeyString(collection)
+	userId := "user"
+	partitionKey := azcosmos.NewPartitionKeyString(userId)
 
 	if _, err := container.UpsertItem(context.TODO(), partitionKey, document.Data, nil); err != nil {
 		return err
@@ -130,7 +133,8 @@ func (db *CosmosDocumentDatabaseClient) DeleteDocument(collection string, docume
 		return err
 	}
 
-	partitionKey := azcosmos.NewPartitionKeyString(collection)
+	userId := "user"
+	partitionKey := azcosmos.NewPartitionKeyString(userId)
 
 	if _, err := container.DeleteItem(context.TODO(), partitionKey, documentId, nil); err != nil {
 		var cosmosError *azcore.ResponseError
