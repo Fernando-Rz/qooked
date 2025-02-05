@@ -24,3 +24,13 @@ type Ingredient struct {
 	Name   string `json:"name"`
 	Amount string `json:"amount"`
 }
+
+// user definition
+type User struct {
+	Id           string `json:"id"`
+	PartitionKey string `json:"partitionKey"`
+	Name         string `json:"name"`
+	Username     string `json:"username"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+}
