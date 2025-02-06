@@ -19,7 +19,7 @@
         },
         {
           "name": "users",
-          "partitionKey": "/userId",
+          "partitionKey": "/id",
           "throughput": "400",
           "indexPaths": [
             {
