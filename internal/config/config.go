@@ -7,9 +7,9 @@ import (
 )
 
 type Config struct {
-	TestEnvironment bool `json:"testEnvironment"`
+	TestEnvironment     bool   `json:"testEnvironment"`
 	DocumentDatabaseUrl string `json:"documentDatabaseUrl"`
-	DatabaseName string `json:"databaseName"`
+	DatabaseName        string `json:"databaseName"`
 }
 
 func NewConfig(fileName string) (Config, error) {
@@ -23,7 +23,7 @@ func NewConfig(fileName string) (Config, error) {
 
 	var config Config
 	decoder := json.NewDecoder(file)
-	
+
 	if err := decoder.Decode(&config); err != nil {
 		return Config{}, err
 	}
