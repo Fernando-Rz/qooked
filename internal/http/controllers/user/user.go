@@ -52,6 +52,7 @@ func (userController *UserController) GetUser(ctx *gin.Context) {
 
 func (userController *UserController) PutUser(ctx *gin.Context) {
 	userId := ctx.Param("user-id")
+
 	if userId == "" {
 		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "User ID is required."})
 		return
@@ -63,7 +64,6 @@ func (userController *UserController) PutUser(ctx *gin.Context) {
 		return
 	}
 
-	//TODO: Fix this, keeps failing to create the user
 	userData.UserId = userId
 
 	if err := userController.userManager.UpsertUser(userId, &userData); err != nil {

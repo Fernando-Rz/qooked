@@ -50,7 +50,7 @@ func (userManager *UserManager) GetUsers() (*[]models.User, error) {
 
 func (userManager *UserManager) GetUser(userId string) (*models.User, error) {
 	userManager.instrumentation.Log(fmt.Sprintf("Getting user with userID '%s' from database...", userId))
-	document, err := userManager.databaseClient.GetDocument(collectionName, userId)
+	document, err := userManager.databaseClient.GetDocument(collectionName, userId, userId)
 
 	if err != nil {
 		userManager.instrumentation.LogError(err.Error())
@@ -68,7 +68,6 @@ func (userManager *UserManager) GetUser(userId string) (*models.User, error) {
 	return user, nil
 }
 
-// need to add simple validation here in case any bad data makes it past the controllers
 func (userManager *UserManager) UpsertUser(userId string, user *models.User) error {
 	document, err := convertUserToDoc(user)
 
@@ -78,7 +77,7 @@ func (userManager *UserManager) UpsertUser(userId string, user *models.User) err
 	}
 
 	userManager.instrumentation.Log(fmt.Sprintf("Attempting to upsert user with userID '%s' to database...", userId))
-	err = userManager.databaseClient.UpsertDocument(collectionName, userId, document)
+	err = userManager.databaseClient.UpsertDocument(collectionName, userId, document, userId)
 
 	if err != nil {
 		userManager.instrumentation.LogError(err.Error())
@@ -91,7 +90,7 @@ func (userManager *UserManager) UpsertUser(userId string, user *models.User) err
 
 func (userManager *UserManager) DeleteUser(userId string) error {
 	userManager.instrumentation.Log(fmt.Sprintf("Attempting to delete user with userID '%s' from database...", userId))
-	err := userManager.databaseClient.DeleteDocument(collectionName, userId)
+	err := userManager.databaseClient.DeleteDocument(collectionName, userId, userId)
 
 	if err != nil {
 		userManager.instrumentation.LogError(err.Error())

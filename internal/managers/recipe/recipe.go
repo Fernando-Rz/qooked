@@ -12,13 +12,13 @@ import (
 const collectionName = "recipes"
 
 type RecipeManager struct {
-    databaseClient documentdb.DocumentDatabaseClient
+	databaseClient  documentdb.DocumentDatabaseClient
 	instrumentation instrumentation.Instrumentation
 }
 
 func NewRecipeManager(databaseClient documentdb.DocumentDatabaseClient, instrumentation instrumentation.Instrumentation) *RecipeManager {
 	return &RecipeManager{
-		databaseClient: databaseClient,
+		databaseClient:  databaseClient,
 		instrumentation: instrumentation,
 	}
 }
@@ -48,15 +48,15 @@ func (recipeManager *RecipeManager) GetRecipes() (*[]models.Recipe, error) {
 	return &recipes, nil
 }
 
-func (recipeManager *RecipeManager) GetRecipe(recipeId string) (*models.Recipe, error) {
+func (recipeManager *RecipeManager) GetRecipe(recipeId string, partitionKey string) (*models.Recipe, error) {
 	recipeManager.instrumentation.Log(fmt.Sprintf("Getting recipe with recipeID '%s' from database...", recipeId))
-	document, err := recipeManager.databaseClient.GetDocument(collectionName, recipeId)
+	document, err := recipeManager.databaseClient.GetDocument(collectionName, recipeId, partitionKey)
 
 	if err != nil {
 		recipeManager.instrumentation.LogError(err.Error())
 		return nil, err
 	}
-    
+
 	recipe, err := convertDocToRecipe(document)
 
 	if err != nil {
@@ -68,7 +68,7 @@ func (recipeManager *RecipeManager) GetRecipe(recipeId string) (*models.Recipe, 
 	return recipe, nil
 }
 
-func (recipeManager *RecipeManager) UpsertRecipe(recipeId string, recipe *models.Recipe) error {
+func (recipeManager *RecipeManager) UpsertRecipe(recipeId string, recipe *models.Recipe, partitionKey string) error {
 	document, err := convertRecipeToDoc(recipe)
 
 	if err != nil {
@@ -77,8 +77,8 @@ func (recipeManager *RecipeManager) UpsertRecipe(recipeId string, recipe *models
 	}
 
 	recipeManager.instrumentation.Log(fmt.Sprintf("Attempting to upsert recipe with recipeID '%s' to database...", recipeId))
-	err = recipeManager.databaseClient.UpsertDocument(collectionName, recipeId, document)
-	
+	err = recipeManager.databaseClient.UpsertDocument(collectionName, recipeId, document, partitionKey)
+
 	if err != nil {
 		recipeManager.instrumentation.LogError(err.Error())
 		return err
@@ -88,9 +88,9 @@ func (recipeManager *RecipeManager) UpsertRecipe(recipeId string, recipe *models
 	return nil
 }
 
-func (recipeManager *RecipeManager) DeleteRecipe(recipeId string) error {
+func (recipeManager *RecipeManager) DeleteRecipe(recipeId string, partitionKey string) error {
 	recipeManager.instrumentation.Log(fmt.Sprintf("Attempting to delete recipe with recipeID '%s' from database...", recipeId))
-	err := recipeManager.databaseClient.DeleteDocument(collectionName, recipeId)
+	err := recipeManager.databaseClient.DeleteDocument(collectionName, recipeId, partitionKey)
 
 	if err != nil {
 		recipeManager.instrumentation.LogError(err.Error())
@@ -104,21 +104,21 @@ func (recipeManager *RecipeManager) DeleteRecipe(recipeId string) error {
 func convertDocToRecipe(document *documentdb.Document) (*models.Recipe, error) {
 	var recipe models.Recipe
 
-    err := json.Unmarshal(document.Data, &recipe)
-    if err != nil {
-        return nil, err
-    }
+	err := json.Unmarshal(document.Data, &recipe)
+	if err != nil {
+		return nil, err
+	}
 
 	return &recipe, nil
 }
 
-func convertRecipeToDoc(recipe *models.Recipe) (*documentdb.Document, error){
+func convertRecipeToDoc(recipe *models.Recipe) (*documentdb.Document, error) {
 	var document documentdb.Document
 	data, err := json.Marshal(*recipe)
-   
+
 	if err != nil {
-        return nil, err
-    }
+		return nil, err
+	}
 
 	document.Data = data
 	return &document, nil

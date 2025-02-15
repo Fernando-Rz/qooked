@@ -27,7 +27,7 @@ type Ingredient struct {
 
 // user definition
 type User struct {
-	UserId   string `json:"userId"`
+	UserId   string `json:"id"`
 	Name     string `json:"name"`
 	Username string `json:"username"`
 	Email    string `json:"email"`

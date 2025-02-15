@@ -102,10 +102,11 @@ func (server *Server) initializeRouter() {
 	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
 	recipeController := *recipeController.NewRecipeController(recipeManager)
 
-	server.router.GET("/recipes", recipeController.GetRecipes)
-	server.router.GET("/recipes/:recipe-name", recipeController.GetRecipe)
-	server.router.PUT("/recipes/:recipe-name", recipeController.PutRecipe)
-	server.router.DELETE("/recipes/:recipe-name", recipeController.DeleteRecipe)
+	server.router.GET("/users/:user-id/recipes", recipeController.GetRecipes)
+	server.router.GET("/users/:user-id/recipes/:recipe-id", recipeController.GetRecipe)
+	server.router.PUT("/users/:user-id/recipes/:recipe-id", recipeController.PutRecipe)
+	server.router.POST("/users/:user-id/recipes", recipeController.PostRecipe)
+	server.router.DELETE("/users/:user-id/recipes/:recipe-id", recipeController.DeleteRecipe)
 
 	// user scope routes
 	userManager := *userManager.NewUserManager(server.documentDatabaseClient, server.instrumentation)
