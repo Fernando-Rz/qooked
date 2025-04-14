@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"qooked/internal/documentdb"
 	"qooked/internal/managers/recipe"
+	"qooked/internal/managers/user"
 	"qooked/internal/models"
 
 	"github.com/gin-gonic/gin"
@@ -11,16 +12,37 @@ import (
 
 type RecipeController struct {
 	recipeManager recipe.RecipeManager
+	userManager   user.UserManager
 }
 
-func NewRecipeController(recipeManager recipe.RecipeManager) *RecipeController {
+func NewRecipeController(recipeManager recipe.RecipeManager, userManager user.UserManager) *RecipeController {
 	return &RecipeController{
 		recipeManager: recipeManager,
+		userManager:   userManager,
 	}
 }
 
 func (recipeController *RecipeController) GetRecipes(ctx *gin.Context) {
-	recipes, err := recipeController.recipeManager.GetRecipes()
+	username := ctx.Param("username")
+
+	if username == "" {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Username is required."})
+		return
+	}
+
+	user, err := recipeController.userManager.GetUser(username)
+
+	if err != nil {
+		if err == documentdb.ErrDocumentNotFound {
+			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": "User not found."})
+		} else {
+			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user."})
+		}
+
+		return
+	}
+
+	recipes, err := recipeController.recipeManager.GetRecipes(user.UserId)
 
 	if err != nil {
 		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipes."})
@@ -31,21 +53,35 @@ func (recipeController *RecipeController) GetRecipes(ctx *gin.Context) {
 }
 
 func (recipeController *RecipeController) GetRecipe(ctx *gin.Context) {
-	userId := ctx.Param("user-id")
-	recipeId := ctx.Param("recipe-id")
+	username := ctx.Param("username")
+	recipeName := ctx.Param("recipe-name")
 
-	if userId == "" || recipeId == "" {
-		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "User ID and Recipe ID are required."})
+	if username == "" || recipeName == "" {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Username and RecipeName are required."})
 		return
 	}
 
-	recipe, err := recipeController.recipeManager.GetRecipe(recipeId, userId)
+	user, err := recipeController.userManager.GetUser(username)
+
+	if err != nil {
+		if err == documentdb.ErrDocumentNotFound {
+			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": "User not found."})
+		} else {
+			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user."})
+		}
+
+		return
+	}
+
+	recipe, err := recipeController.recipeManager.GetRecipe(recipeName, user.UserId)
+
 	if err != nil {
 		if err == documentdb.ErrDocumentNotFound {
 			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": "Recipe not found."})
 		} else {
 			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve recipe."})
 		}
+
 		return
 	}
 
@@ -53,24 +89,37 @@ func (recipeController *RecipeController) GetRecipe(ctx *gin.Context) {
 }
 
 func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
-	userId := ctx.Param("user-id")
-	recipeId := ctx.Param("recipe-id")
+	username := ctx.Param("username")
+	recipeName := ctx.Param("recipe-name")
 
-	if userId == "" || recipeId == "" {
-		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "User ID and Recipe ID are required."})
+	if username == "" || recipeName == "" {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Username and RecipeName are required."})
 		return
 	}
 
 	var recipeData models.Recipe
+
 	if err := ctx.ShouldBindJSON(&recipeData); err != nil {
 		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Invalid request body."})
 		return
 	}
 
-	recipeData.UserId = userId
-	recipeData.RecipeId = recipeId
+	user, err := recipeController.userManager.GetUser(username)
 
-	if err := recipeController.recipeManager.UpsertRecipe(recipeId, &recipeData, userId); err != nil {
+	if err != nil {
+		if err == documentdb.ErrDocumentNotFound {
+			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": "User not found."})
+		} else {
+			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user."})
+		}
+
+		return
+	}
+
+	recipeData.UserId = user.UserId
+	recipeData.Name = recipeName
+
+	if err := recipeController.recipeManager.UpsertRecipe(recipeName, &recipeData, user.UserId); err != nil {
 		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update recipe."})
 		return
 	}
@@ -79,20 +128,33 @@ func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
 }
 
 func (recipeController *RecipeController) DeleteRecipe(ctx *gin.Context) {
-	userId := ctx.Param("user-id")
-	recipeId := ctx.Param("recipe-id")
+	username := ctx.Param("username")
+	recipeName := ctx.Param("recipe-name")
 
-	if userId == "" || recipeId == "" {
-		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "User ID and Recipe ID are required."})
+	if username == "" || recipeName == "" {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Username and RecipeName are required."})
 		return
 	}
 
-	if err := recipeController.recipeManager.DeleteRecipe(recipeId, userId); err != nil {
+	user, err := recipeController.userManager.GetUser(username)
+
+	if err != nil {
+		if err == documentdb.ErrDocumentNotFound {
+			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": "User not found."})
+		} else {
+			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user."})
+		}
+
+		return
+	}
+
+	if err := recipeController.recipeManager.DeleteRecipe(recipeName, user.UserId); err != nil {
 		if err == documentdb.ErrDocumentNotFound {
 			ctx.IndentedJSON(http.StatusNotFound, gin.H{"error": "Recipe not found."})
 		} else {
 			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete recipe."})
 		}
+
 		return
 	}
 

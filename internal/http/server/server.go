@@ -109,7 +109,7 @@ func (server *Server) initializeRouter() {
 
 	// recipe scope routes
 	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
-	recipeController := *recipeController.NewRecipeController(recipeManager)
+	recipeController := *recipeController.NewRecipeController(recipeManager, userManager)
 
 	server.router.GET("/users/:username/recipes", recipeController.GetRecipes)
 	server.router.GET("/users/:username/recipes/:recipe-name", recipeController.GetRecipe)
