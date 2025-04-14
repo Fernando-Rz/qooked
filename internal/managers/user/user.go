@@ -8,6 +8,8 @@ import (
 	"qooked/internal/documentdb"
 	"qooked/internal/instrumentation"
 	"qooked/internal/models"
+
+	"github.com/google/uuid"
 )
 
 const collectionName = "users"
@@ -94,19 +96,44 @@ func (userManager *UserManager) GetUser(username string) (*models.User, error) {
 }
 
 func (userManager *UserManager) UpsertUser(username string, user *models.User) error {
-	// assuming userId is passed when editing an existing user
-	userId := user.UserId // empty string when creating a new user
-	currentUser, err := userManager.GetUser(username)
+	creatingNewUser := false
+	updatingExistingUsername := false
+	currentUserDoc, err := userManager.databaseClient.GetDocument(collectionName, user.UserId, universalGroupId)
 
-	if err != nil && err != documentdb.ErrDocumentNotFound {
-		userManager.instrumentation.LogError(err.Error())
-		return err
+	if err != nil {
+		if err == documentdb.ErrDocumentNotFound {
+			creatingNewUser = true
+			user.UserId = uuid.New().String()
+		} else {
+			userManager.instrumentation.LogError(err.Error())
+			return err
+		}
 	}
 
-	if err == nil && currentUser.UserId != userId {
-		// the userId passed by the caller does not match what is stored in the db
-		userManager.instrumentation.LogError(ErrUsernameExists.Error())
-		return ErrUsernameExists
+	if !creatingNewUser {
+		currentUser, err := convertDocToUser(currentUserDoc)
+
+		if err != nil {
+			userManager.instrumentation.LogError(err.Error())
+			return err
+		}
+
+		updatingExistingUsername = currentUser.Username != username
+	}
+
+	if creatingNewUser || updatingExistingUsername {
+		existingUser, err := userManager.GetUser(username)
+
+		if err != nil && err != documentdb.ErrDocumentNotFound {
+			userManager.instrumentation.LogError(err.Error())
+			return err
+		}
+
+		if err == nil && existingUser.UserId != user.UserId {
+			// the userId passed by the caller does not match what is stored in the db
+			userManager.instrumentation.LogError(ErrUsernameExists.Error())
+			return ErrUsernameExists
+		}
 	}
 
 	document, err := convertUserToDoc(user)
@@ -117,7 +144,7 @@ func (userManager *UserManager) UpsertUser(username string, user *models.User) e
 	}
 
 	userManager.instrumentation.Log(fmt.Sprintf("Attempting to upsert user with username '%s' to database...", username))
-	err = userManager.databaseClient.UpsertDocument(collectionName, userId, document, universalGroupId)
+	err = userManager.databaseClient.UpsertDocument(collectionName, user.UserId, document, universalGroupId)
 
 	if err != nil {
 		userManager.instrumentation.LogError(err.Error())

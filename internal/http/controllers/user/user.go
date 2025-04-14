@@ -71,7 +71,7 @@ func (userController *UserController) PutUser(ctx *gin.Context) {
 
 	if err := userController.userManager.UpsertUser(username, &userData); err != nil {
 		if err == user.ErrUsernameExists {
-			ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Username already exists."})
+			ctx.IndentedJSON(http.StatusConflict, gin.H{"error": "Username already exists."})
 		} else {
 			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update user."})
 		}
