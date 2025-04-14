@@ -98,24 +98,23 @@ func (server *Server) initializeRouter() {
 	// health check routes
 	server.router.GET("/health", health.HealthCheck)
 
-	// recipe scope routes
-	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
-	recipeController := *recipeController.NewRecipeController(recipeManager)
-
-	server.router.GET("/users/:user-id/recipes", recipeController.GetRecipes)
-	server.router.GET("/users/:user-id/recipes/:recipe-id", recipeController.GetRecipe)
-	server.router.PUT("/users/:user-id/recipes/:recipe-id", recipeController.PutRecipe)
-	server.router.POST("/users/:user-id/recipes", recipeController.PostRecipe)
-	server.router.DELETE("/users/:user-id/recipes/:recipe-id", recipeController.DeleteRecipe)
-
 	// user scope routes
 	userManager := *userManager.NewUserManager(server.documentDatabaseClient, server.instrumentation)
 	userController := *userController.NewUserController(userManager)
 
 	server.router.GET("/users", userController.GetUsers)
-	server.router.GET("/users/:user-id", userController.GetUser)
-	server.router.PUT("/users/:user-id", userController.PutUser)
-	server.router.DELETE("/users/:user-id", userController.DeleteUser)
+	server.router.GET("/users/:username", userController.GetUser)
+	server.router.PUT("/users/:username", userController.PutUser)
+	server.router.DELETE("/users/:username", userController.DeleteUser)
+
+	// recipe scope routes
+	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
+	recipeController := *recipeController.NewRecipeController(recipeManager)
+
+	server.router.GET("/users/:username/recipes", recipeController.GetRecipes)
+	server.router.GET("/users/:username/recipes/:recipe-name", recipeController.GetRecipe)
+	server.router.PUT("/users/:username/recipes/:recipe-name", recipeController.PutRecipe)
+	server.router.DELETE("/users/:username/recipes/:recipe-name", recipeController.DeleteRecipe)
 
 	// middlewares
 	server.router.Use(unknown.UnknownPath)

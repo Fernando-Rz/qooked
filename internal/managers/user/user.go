@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"qooked/internal/documentdb"
@@ -10,6 +11,12 @@ import (
 )
 
 const collectionName = "users"
+const universalGroupId = "1"
+
+var (
+	ErrConflictingUsers = errors.New("multiple users with the same username")
+	ErrUsernameExists   = errors.New("username already exists")
+)
 
 type UserManager struct {
 	databaseClient  documentdb.DocumentDatabaseClient
@@ -24,8 +31,10 @@ func NewUserManager(databaseClient documentdb.DocumentDatabaseClient, instrument
 }
 
 func (userManager *UserManager) GetUsers() (*[]models.User, error) {
+	query := fmt.Sprintf("SELECT * FROM %s c", collectionName)
+
 	userManager.instrumentation.Log("Getting users from database...")
-	documents, err := userManager.databaseClient.GetDocuments(collectionName)
+	documents, err := userManager.databaseClient.GetDocuments(collectionName, query, universalGroupId)
 	users := []models.User{}
 
 	if err != nil {
@@ -48,27 +57,58 @@ func (userManager *UserManager) GetUsers() (*[]models.User, error) {
 	return &users, nil
 }
 
-func (userManager *UserManager) GetUser(userId string) (*models.User, error) {
-	userManager.instrumentation.Log(fmt.Sprintf("Getting user with userID '%s' from database...", userId))
-	document, err := userManager.databaseClient.GetDocument(collectionName, userId, userId)
+func (userManager *UserManager) GetUser(username string) (*models.User, error) {
+	// TODO: check if we can pass a blank username for GetUsers()
+	query := fmt.Sprintf("SELECT * FROM %s c WHERE c.username = '%s'", collectionName, username)
+
+	userManager.instrumentation.Log(fmt.Sprintf("Getting user with username '%s' from database...", username))
+	documents, err := userManager.databaseClient.GetDocuments(collectionName, query, universalGroupId)
+	users := []models.User{}
 
 	if err != nil {
 		userManager.instrumentation.LogError(err.Error())
 		return nil, err
 	}
 
-	user, err := convertDocToUser(document)
+	for _, document := range *documents {
+		user, err := convertDocToUser(&document)
 
-	if err != nil {
-		userManager.instrumentation.LogError(err.Error())
-		return nil, err
+		if err != nil {
+			userManager.instrumentation.LogError(err.Error())
+			return nil, err
+		}
+
+		users = append(users, *user)
 	}
 
-	userManager.instrumentation.Log(fmt.Sprintf("User with userID '%s' found.", userId))
-	return user, nil
+	userCount := len(users)
+	userManager.instrumentation.Log(fmt.Sprintf("Number of users returned: %d.", userCount))
+
+	if userCount > 1 {
+		return nil, ErrConflictingUsers
+	} else if userCount == 0 {
+		return nil, documentdb.ErrDocumentNotFound
+	} else {
+		return &users[0], nil
+	}
 }
 
-func (userManager *UserManager) UpsertUser(userId string, user *models.User) error {
+func (userManager *UserManager) UpsertUser(username string, user *models.User) error {
+	// assuming userId is passed when editing an existing user
+	userId := user.UserId // empty string when creating a new user
+	currentUser, err := userManager.GetUser(username)
+
+	if err != nil && err != documentdb.ErrDocumentNotFound {
+		userManager.instrumentation.LogError(err.Error())
+		return err
+	}
+
+	if err == nil && currentUser.UserId != userId {
+		// the userId passed by the caller does not match what is stored in the db
+		userManager.instrumentation.LogError(ErrUsernameExists.Error())
+		return ErrUsernameExists
+	}
+
 	document, err := convertUserToDoc(user)
 
 	if err != nil {
@@ -76,28 +116,35 @@ func (userManager *UserManager) UpsertUser(userId string, user *models.User) err
 		return err
 	}
 
-	userManager.instrumentation.Log(fmt.Sprintf("Attempting to upsert user with userID '%s' to database...", userId))
-	err = userManager.databaseClient.UpsertDocument(collectionName, userId, document, userId)
+	userManager.instrumentation.Log(fmt.Sprintf("Attempting to upsert user with username '%s' to database...", username))
+	err = userManager.databaseClient.UpsertDocument(collectionName, userId, document, universalGroupId)
 
 	if err != nil {
 		userManager.instrumentation.LogError(err.Error())
 		return err
 	}
 
-	userManager.instrumentation.Log(fmt.Sprintf("User with userID '%s' successfully upserted to database.", userId))
+	userManager.instrumentation.Log(fmt.Sprintf("User with username '%s' successfully upserted to database.", username))
 	return nil
 }
 
-func (userManager *UserManager) DeleteUser(userId string) error {
-	userManager.instrumentation.Log(fmt.Sprintf("Attempting to delete user with userID '%s' from database...", userId))
-	err := userManager.databaseClient.DeleteDocument(collectionName, userId, userId)
+func (userManager *UserManager) DeleteUser(username string) error {
+	currentUser, err := userManager.GetUser(username)
 
 	if err != nil {
 		userManager.instrumentation.LogError(err.Error())
 		return err
 	}
 
-	userManager.instrumentation.Log(fmt.Sprintf("User with userID '%s' successfully deleted from database.", userId))
+	userManager.instrumentation.Log(fmt.Sprintf("Attempting to delete user with username '%s' from database...", username))
+	err = userManager.databaseClient.DeleteDocument(collectionName, currentUser.UserId, universalGroupId)
+
+	if err != nil {
+		userManager.instrumentation.LogError(err.Error())
+		return err
+	}
+
+	userManager.instrumentation.Log(fmt.Sprintf("User with username '%s' successfully deleted from database.", username))
 	return nil
 }
 

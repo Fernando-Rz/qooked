@@ -26,7 +26,7 @@ func (db *MockDocumentDatabaseClient) TestConnection() error {
 	return nil
 }
 
-func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]documentdb.Document, error) {
+func (db *MockDocumentDatabaseClient) GetDocuments(collection string, query string, partitionKey string) (*[]documentdb.Document, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 

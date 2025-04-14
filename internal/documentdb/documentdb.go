@@ -14,8 +14,8 @@ type Document struct {
 type DocumentDatabaseClient interface {
 	InitializeClient(endpointUrl string, databaseName string) error
 	TestConnection() error
-	GetDocuments(collection string) (*[]Document, error)
-	GetDocument(collection string, documentId string, partitionKey string) (*Document, error)
+	GetDocuments(collection string, query string, partitionKey string) (*[]Document, error)
+	GetDocument(collection string, documentId string, partitionKey string) (*Document, error) // TODO: might not be needed anymore
 	UpsertDocument(collection string, documentId string, document *Document, partitionKey string) error
 	DeleteDocument(collection string, documentId string, partitionKey string) error
 }

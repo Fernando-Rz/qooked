@@ -3,7 +3,6 @@ package cosmos
 import (
 	"context"
 	"errors"
-	"fmt"
 	"qooked/internal/documentdb"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
@@ -54,8 +53,7 @@ func (db *CosmosDocumentDatabaseClient) TestConnection() error {
 	return nil
 }
 
-// TODO: Fix this function to do a cross partition query for the given collection
-func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string) (*[]documentdb.Document, error) {
+func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string, query string, partitionKey string) (*[]documentdb.Document, error) {
 	documents := []documentdb.Document{}
 
 	container, err := db.client.NewContainer(collection)
@@ -63,12 +61,10 @@ func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string) (*[]docu
 		return nil, err
 	}
 
-	query := fmt.Sprintf("SELECT * FROM %s c", collection)
-
-	partitionKey := azcosmos.NewPartitionKeyString("")
+	cosmosPartitionKey := azcosmos.NewPartitionKeyString(partitionKey)
 	options := &azcosmos.QueryOptions{}
 
-	pager := container.NewQueryItemsPager(query, partitionKey, options)
+	pager := container.NewQueryItemsPager(query, cosmosPartitionKey, options)
 
 	for pager.More() {
 		response, err := pager.NextPage(context.TODO())
