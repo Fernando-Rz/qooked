@@ -121,8 +121,6 @@ func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
 		return
 	}
 
-	recipeData.UserId = user.UserId
-
 	if err := recipeController.recipeManager.UpsertRecipe(recipeName, &recipeData, user.UserId); err != nil {
 		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update recipe."})
 		return

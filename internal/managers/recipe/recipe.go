@@ -97,27 +97,33 @@ func (recipeManager *RecipeManager) GetRecipe(recipeName string, userId string) 
 func (recipeManager *RecipeManager) UpsertRecipe(recipeName string, recipe *models.Recipe, userId string) error {
 	creatingNewRecipe := false
 	updatingExistingRecipeName := false
-	currentRecipeDoc, err := recipeManager.databaseClient.GetDocument(collectionName, recipe.RecipeId, userId)
 
-	if err != nil {
-		if err == documentdb.ErrDocumentNotFound {
-			creatingNewRecipe = true
-			recipe.RecipeId = uuid.New().String()
-		} else {
-			recipeManager.instrumentation.LogError(err.Error())
-			return err
-		}
-	}
-
-	if !creatingNewRecipe {
-		currentRecipe, err := convertDocToRecipe(currentRecipeDoc)
+	if recipe.RecipeId == "" {
+		creatingNewRecipe = true
+		recipe.RecipeId = uuid.New().String()
+	} else {
+		currentRecipeDoc, err := recipeManager.databaseClient.GetDocument(collectionName, recipe.RecipeId, userId)
 
 		if err != nil {
-			recipeManager.instrumentation.LogError(err.Error())
-			return err
+			if err == documentdb.ErrDocumentNotFound {
+				creatingNewRecipe = true
+				recipe.RecipeId = uuid.New().String()
+			} else {
+				recipeManager.instrumentation.LogError(err.Error())
+				return err
+			}
 		}
 
-		updatingExistingRecipeName = currentRecipe.Name != recipeName
+		if !creatingNewRecipe {
+			currentRecipe, err := convertDocToRecipe(currentRecipeDoc)
+
+			if err != nil {
+				recipeManager.instrumentation.LogError(err.Error())
+				return err
+			}
+
+			updatingExistingRecipeName = currentRecipe.Name != recipeName
+		}
 	}
 
 	if creatingNewRecipe || updatingExistingRecipeName {
@@ -135,6 +141,7 @@ func (recipeManager *RecipeManager) UpsertRecipe(recipeName string, recipe *mode
 		}
 	}
 
+	recipe.UserId = userId
 	document, err := convertRecipeToDoc(recipe)
 
 	if err != nil {
