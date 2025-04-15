@@ -98,27 +98,33 @@ func (userManager *UserManager) GetUser(username string) (*models.User, error) {
 func (userManager *UserManager) UpsertUser(username string, user *models.User) error {
 	creatingNewUser := false
 	updatingExistingUsername := false
-	currentUserDoc, err := userManager.databaseClient.GetDocument(collectionName, user.UserId, universalGroupId)
 
-	if err != nil {
-		if err == documentdb.ErrDocumentNotFound {
-			creatingNewUser = true
-			user.UserId = uuid.New().String()
-		} else {
-			userManager.instrumentation.LogError(err.Error())
-			return err
-		}
-	}
-
-	if !creatingNewUser {
-		currentUser, err := convertDocToUser(currentUserDoc)
+	if user.UserId == "" {
+		creatingNewUser = true
+		user.UserId = uuid.New().String()
+	} else {
+		currentUserDoc, err := userManager.databaseClient.GetDocument(collectionName, user.UserId, universalGroupId)
 
 		if err != nil {
-			userManager.instrumentation.LogError(err.Error())
-			return err
+			if err == documentdb.ErrDocumentNotFound {
+				creatingNewUser = true
+				user.UserId = uuid.New().String()
+			} else {
+				userManager.instrumentation.LogError(err.Error())
+				return err
+			}
 		}
 
-		updatingExistingUsername = currentUser.Username != username
+		if !creatingNewUser {
+			currentUser, err := convertDocToUser(currentUserDoc)
+
+			if err != nil {
+				userManager.instrumentation.LogError(err.Error())
+				return err
+			}
+
+			updatingExistingUsername = currentUser.Username != username
+		}
 	}
 
 	if creatingNewUser || updatingExistingUsername {
@@ -136,6 +142,7 @@ func (userManager *UserManager) UpsertUser(username string, user *models.User) e
 		}
 	}
 
+	user.GroupId = universalGroupId
 	document, err := convertUserToDoc(user)
 
 	if err != nil {

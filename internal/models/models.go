@@ -3,6 +3,7 @@ package models
 // user definition
 type User struct {
 	UserId      string `json:"id"`
+	GroupId     string `json:"groupId"`
 	ProfileName string `json:"profileName"`
 	Username    string `json:"username"`
 	Email       string `json:"email"`
