@@ -104,7 +104,7 @@ func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
 		return
 	}
 
-	if recipeData.Name != recipeName {
+	if recipeData.RecipeName != recipeName {
 		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "RecipeName in the URL does not match the RecipeName in the body."})
 		return
 	}

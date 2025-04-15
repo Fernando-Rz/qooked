@@ -122,7 +122,7 @@ func (recipeManager *RecipeManager) UpsertRecipe(recipeName string, recipe *mode
 				return err
 			}
 
-			updatingExistingRecipeName = currentRecipe.Name != recipeName
+			updatingExistingRecipeName = currentRecipe.RecipeName != recipeName
 		}
 	}
 

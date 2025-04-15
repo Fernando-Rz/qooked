@@ -22,7 +22,7 @@
                   "kind": "Range"
                 }
               ],
-              "path": "/name/?"
+              "path": "/recipeName/?"
             }
           ]
         },

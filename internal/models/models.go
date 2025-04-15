@@ -14,7 +14,7 @@ type User struct {
 type Recipe struct {
 	RecipeId     string       `json:"id"`
 	UserId       string       `json:"userId"`
-	Name         string       `json:"name"`
+	RecipeName   string       `json:"recipeName"`
 	Description  string       `json:"description"`
 	Time         RecipeTime   `json:"time"`
 	Servings     int          `json:"servings"`

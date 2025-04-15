@@ -17,7 +17,7 @@ PUT https://qooked.azurewebsites.net/users/johndoe123/recipes/sandwichRecipe
 Content-Type: application/json
 
 {
-  "name": "sandwichRecipe",
+  "recipeName": "sandwichRecipe",
   "description": "My first recipe.",
   "time": {
     "prep": "5m",
