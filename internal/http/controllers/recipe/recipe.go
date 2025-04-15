@@ -122,7 +122,12 @@ func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
 	}
 
 	if err := recipeController.recipeManager.UpsertRecipe(recipeName, &recipeData, user.UserId); err != nil {
-		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update recipe."})
+		if err == recipe.ErrRecipeNameExists {
+			ctx.IndentedJSON(http.StatusConflict, gin.H{"error": "RecipeName already exists."})
+		} else {
+			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update recipe."})
+		}
+
 		return
 	}
 
