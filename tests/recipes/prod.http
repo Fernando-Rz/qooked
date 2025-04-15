@@ -1,62 +1,23 @@
-### Create Recipe
-POST https://qooked.azurewebsites.net/users/123e4567-e8/recipes
+### Create User
+PUT https://qooked.azurewebsites.net/users/johndoe123
 Content-Type: application/json
 
 {
-  "name": "Brayan's Sandwich Recipe",
-  "id": "recipe_id123",
-  "description": "My first recipe.",
-  "time": {
-    "prep": "5m",
-    "cook": "2m",
-    "total": "7m"
-  },
-  "servings": 1,
-  "ingredients": [
-    {
-      "name": "bread",
-      "amount": "4 slices"
-    },
-    {
-      "name": "ham",
-      "amount": "2 slices"
-    },
-    {
-      "name": "lettuce",
-      "amount": "2 pieces"
-    },
-    {
-      "name": "cheese",
-      "amount": "2 slices"
-    },
-    {
-      "name": "bacon",
-      "amount": "4 pieces"
-    }
-  ],
-  "instructions": [
-    "1. Place bread",
-    "2. Place ham",
-    "3. Place cheese",
-    "4. Place lettuce",
-    "5. Place 2 pieces of bacon",
-    "6. Repeat for second sandwich"
-  ]
+  "profileName": "John Doe",
+  "username": "johndoe123",
+  "email": "johndoe@example.com",
+  "password": "securepassword123"
 }
 
-### Get All recipes
-GET https://qooked.azurewebsites.net/users/123e4567-e8/recipes
+### Get Recipes
+GET https://qooked.azurewebsites.net/users/johndoe123/recipes
 
-### Get One Recipe
-GET https://qooked.azurewebsites.net/users/123e4567-e8/recipes/recipe_id123
-
-### Modify a Recipe
-PUT https://qooked.azurewebsites.net/users/123e4567-e8/recipes/recipe_id123
+### Create Recipe
+PUT https://qooked.azurewebsites.net/users/johndoe123/recipes/sandwichRecipe
 Content-Type: application/json
 
 {
-  "name": "Fernando's Sandwich Recipe",
-  "id": "recipe_id123",
+  "name": "sandwichRecipe",
   "description": "My first recipe.",
   "time": {
     "prep": "5m",
@@ -96,5 +57,11 @@ Content-Type: application/json
   ]
 }
 
-### Delete a Recipe
-DELETE https://qooked.azurewebsites.net/users/123e4567-e8/recipes/recipe_id123
+### Get Recipe
+GET https://qooked.azurewebsites.net/users/johndoe123/recipes/sandwichRecipe
+
+### Delete Recipe
+DELETE https://qooked.azurewebsites.net/users/johndoe123/recipes/sandwichRecipe
+
+### Delete User
+DELETE https://qooked.azurewebsites.net/users/johndoe123
