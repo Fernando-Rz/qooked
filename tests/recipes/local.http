@@ -27,23 +27,23 @@ Content-Type: application/json
   "servings": 1,
   "ingredients": [
     {
-      "name": "bread",
+      "ingredientName": "bread",
       "amount": "4 slices"
     },
     {
-      "name": "ham",
+      "ingredientName": "ham",
       "amount": "3 slices"
     },
     {
-      "name": "lettuce",
+      "ingredientName": "lettuce",
       "amount": "2 pieces"
     },
     {
-      "name": "cheese",
+      "ingredientName": "cheese",
       "amount": "2 slices"
     },
     {
-      "name": "bacon",
+      "ingredientName": "bacon",
       "amount": "2 pieces"
     }
   ],

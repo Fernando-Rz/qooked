@@ -31,6 +31,6 @@ type RecipeTime struct {
 
 // ingredient definition
 type Ingredient struct {
-	Name   string `json:"name"`
-	Amount string `json:"amount"`
+	IngredientName string `json:"ingredientName"`
+	Amount         string `json:"amount"`
 }
