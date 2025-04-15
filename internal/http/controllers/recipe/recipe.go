@@ -104,6 +104,11 @@ func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
 		return
 	}
 
+	if recipeData.Name != recipeName {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "RecipeName in the URL does not match the RecipeName in the body."})
+		return
+	}
+
 	user, err := recipeController.userManager.GetUser(username)
 
 	if err != nil {
@@ -117,7 +122,6 @@ func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
 	}
 
 	recipeData.UserId = user.UserId
-	recipeData.Name = recipeName
 
 	if err := recipeController.recipeManager.UpsertRecipe(recipeName, &recipeData, user.UserId); err != nil {
 		ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update recipe."})

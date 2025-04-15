@@ -67,7 +67,10 @@ func (userController *UserController) PutUser(ctx *gin.Context) {
 		return
 	}
 
-	userData.Username = username
+	if userData.Username != username {
+		ctx.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Username in the URL does not match the Username in the body."})
+		return
+	}
 
 	if err := userController.userManager.UpsertUser(username, &userData); err != nil {
 		if err == user.ErrUsernameExists {
