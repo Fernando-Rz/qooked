@@ -2,18 +2,18 @@
 GET https://qooked.azurewebsites.net/users
 
 ### Create User
-PUT https://qooked.azurewebsites.net/users/123e4567-e8
+PUT https://qooked.azurewebsites.net/users/johndoe123
 Content-Type: application/json
 
 {
-  "name": "John Doe",
+  "profileName": "John Doe",
   "username": "johndoe123",
   "email": "johndoe@example.com",
   "password": "securepassword123"
 }
 
 ### Get User
-GET https://qooked.azurewebsites.net/users/123e4567-e8
+GET https://qooked.azurewebsites.net/users/johndoe123
 
 ### Delete User
-DELETE https://qooked.azurewebsites.net/users/123e4567-e8
+DELETE https://qooked.azurewebsites.net/users/johndoe123

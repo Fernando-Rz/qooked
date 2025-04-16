@@ -14,16 +14,34 @@
           "indexPaths": [
             {
               "path": "/*"
+            },
+            {
+              "indexes": [
+                {
+                  "dataType": "String",
+                  "kind": "Range"
+                }
+              ],
+              "path": "/recipeName/?"
             }
           ]
         },
         {
           "name": "users",
-          "partitionKey": "/id",
+          "partitionKey": "/groupId",
           "throughput": "400",
           "indexPaths": [
             {
               "path": "/*"
+            },
+            {
+              "indexes": [
+                {
+                  "dataType": "String",
+                  "kind": "Range"
+                }
+              ],
+              "path": "/username/?"
             },
             {
               "indexes": [
