@@ -1,0 +1,19 @@
+## Get Users
+GET http://localhost:8080/users
+
+### Create User
+PUT http://localhost:8080/users/johndoe123
+Content-Type: application/json
+
+{
+  "profileName": "John Doe",
+  "username": "johndoe123",
+  "email": "johndoe@example.com",
+  "password": "securepassword123"
+}
+
+### Get User
+GET http://localhost:8080/users/johndoe123
+
+### Delete User
+DELETE http://localhost:8080/users/johndoe123

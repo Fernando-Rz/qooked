@@ -3,7 +3,6 @@ package cosmos
 import (
 	"context"
 	"errors"
-	"fmt"
 	"qooked/internal/documentdb"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
@@ -54,7 +53,7 @@ func (db *CosmosDocumentDatabaseClient) TestConnection() error {
 	return nil
 }
 
-func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string) (*[]documentdb.Document, error) {
+func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string, query string, partitionKey string) (*[]documentdb.Document, error) {
 	documents := []documentdb.Document{}
 
 	container, err := db.client.NewContainer(collection)
@@ -62,12 +61,11 @@ func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string) (*[]docu
 		return nil, err
 	}
 
-	// TODO: Update this to be the current user's userID to partition data by user
-	userId := "user"
-	partitionKey := azcosmos.NewPartitionKeyString(userId)
-	query := fmt.Sprintf("SELECT * FROM %s c", collection)
+	cosmosPartitionKey := azcosmos.NewPartitionKeyString(partitionKey)
+	options := &azcosmos.QueryOptions{}
 
-	pager := container.NewQueryItemsPager(query, partitionKey, nil)
+	pager := container.NewQueryItemsPager(query, cosmosPartitionKey, options)
+
 	for pager.More() {
 		response, err := pager.NextPage(context.TODO())
 		if err != nil {
@@ -86,7 +84,7 @@ func (db *CosmosDocumentDatabaseClient) GetDocuments(collection string) (*[]docu
 	return &documents, nil
 }
 
-func (db *CosmosDocumentDatabaseClient) GetDocument(collection string, documentId string) (*documentdb.Document, error) {
+func (db *CosmosDocumentDatabaseClient) GetDocument(collection string, documentId string, partitionKey string) (*documentdb.Document, error) {
 	document := documentdb.Document{}
 
 	container, err := db.client.NewContainer(collection)
@@ -94,10 +92,9 @@ func (db *CosmosDocumentDatabaseClient) GetDocument(collection string, documentI
 		return nil, err
 	}
 
-	userId := "user"
-	partitionKey := azcosmos.NewPartitionKeyString(userId)
+	pk := azcosmos.NewPartitionKeyString(partitionKey)
 
-	response, err := container.ReadItem(context.TODO(), partitionKey, documentId, nil)
+	response, err := container.ReadItem(context.TODO(), pk, documentId, nil)
 	if err != nil {
 		var cosmosError *azcore.ResponseError
 		if errors.As(err, &cosmosError) && cosmosError.StatusCode == 404 {
@@ -111,32 +108,30 @@ func (db *CosmosDocumentDatabaseClient) GetDocument(collection string, documentI
 	return &document, nil
 }
 
-func (db *CosmosDocumentDatabaseClient) UpsertDocument(collection string, documentId string, document *documentdb.Document) error {
+func (db *CosmosDocumentDatabaseClient) UpsertDocument(collection string, documentId string, document *documentdb.Document, partitionKey string) error {
 	container, err := db.client.NewContainer(collection)
 	if err != nil {
 		return err
 	}
 
-	userId := "user"
-	partitionKey := azcosmos.NewPartitionKeyString(userId)
+	pk := azcosmos.NewPartitionKeyString(partitionKey)
 
-	if _, err := container.UpsertItem(context.TODO(), partitionKey, document.Data, nil); err != nil {
+	if _, err := container.UpsertItem(context.TODO(), pk, document.Data, nil); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (db *CosmosDocumentDatabaseClient) DeleteDocument(collection string, documentId string) error {
+func (db *CosmosDocumentDatabaseClient) DeleteDocument(collection string, documentId string, partitionKey string) error {
 	container, err := db.client.NewContainer(collection)
 	if err != nil {
 		return err
 	}
 
-	userId := "user"
-	partitionKey := azcosmos.NewPartitionKeyString(userId)
+	pk := azcosmos.NewPartitionKeyString(partitionKey)
 
-	if _, err := container.DeleteItem(context.TODO(), partitionKey, documentId, nil); err != nil {
+	if _, err := container.DeleteItem(context.TODO(), pk, documentId, nil); err != nil {
 		var cosmosError *azcore.ResponseError
 		if errors.As(err, &cosmosError) && cosmosError.StatusCode == 404 {
 			return documentdb.ErrDocumentNotFound

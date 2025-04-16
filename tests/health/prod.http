@@ -1,0 +1,5 @@
+### Health Check
+GET https://qooked.azurewebsites.net/health
+
+### Unknown Path Check
+GET https://qooked.azurewebsites.net/unknown
