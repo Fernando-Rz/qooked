@@ -1,7 +1,29 @@
-## Get Users
+### Register a New User
+PUT http://localhost:8080/register
+Content-Type: application/json
+
+{
+  "username": "test2",
+  "email": "test2@example.com",
+  "password": "securePassword123",
+  "profileName": "Test2 Test2"
+}
+
+### Login with Existing User
+# @name login
+PUT http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "username": "test2",
+  "password": "securePassword123"
+}
+
+
+## Get Users (public)
 GET http://localhost:8080/users
 
-### Create User
+### Create User (public)
 PUT http://localhost:8080/users/johndoe123
 Content-Type: application/json
 
@@ -12,8 +34,11 @@ Content-Type: application/json
   "password": "securepassword123"
 }
 
-### Get User
-GET http://localhost:8080/users/johndoe123
+### Get User (private)
+GET http://localhost:8080/users/johndoe1234
+Authorization: Bearer {{login.response.body.$.token}}
 
-### Delete User
-DELETE http://localhost:8080/users/johndoe123
+
+### Delete User (private)
+DELETE http://localhost:8080/users/test2
+Authorization: Bearer {{login.response.body.$.token}}

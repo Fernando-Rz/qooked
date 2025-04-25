@@ -4,9 +4,11 @@ import (
 	"qooked/internal/config"
 	"qooked/internal/documentdb"
 	"qooked/internal/documentdb/azure/cosmos"
+	authController "qooked/internal/http/controllers/auth"
 	"qooked/internal/http/controllers/health"
 	recipeController "qooked/internal/http/controllers/recipe"
 	userController "qooked/internal/http/controllers/user"
+	"qooked/internal/http/middleware/auth"
 	"qooked/internal/http/middleware/unknown"
 	"qooked/internal/instrumentation"
 	mockInstrumentation "qooked/internal/instrumentation/mock"
@@ -98,23 +100,38 @@ func (server *Server) initializeRouter() {
 	// health check routes
 	server.router.GET("/health", health.HealthCheck)
 
-	// user scope routes
+	// managers and controllers
 	userManager := *userManager.NewUserManager(server.documentDatabaseClient, server.instrumentation)
 	userController := *userController.NewUserController(userManager)
-
-	server.router.GET("/users", userController.GetUsers)
-	server.router.GET("/users/:username", userController.GetUser)
-	server.router.PUT("/users/:username", userController.PutUser)
-	server.router.DELETE("/users/:username", userController.DeleteUser)
-
-	// recipe scope routes
 	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
 	recipeController := *recipeController.NewRecipeController(recipeManager, userManager)
+	authController := *authController.NewAuthController(userManager)
 
-	server.router.GET("/users/:username/recipes", recipeController.GetRecipes)
-	server.router.GET("/users/:username/recipes/:recipe-name", recipeController.GetRecipe)
-	server.router.PUT("/users/:username/recipes/:recipe-name", recipeController.PutRecipe)
-	server.router.DELETE("/users/:username/recipes/:recipe-name", recipeController.DeleteRecipe)
+	// public
+	server.router.GET("/users", userController.GetUsers)
+	server.router.PUT("/register", authController.Register)
+	server.router.PUT("/login", authController.Login)
+
+	// server.router.PUT("/users/:username", userController.PutUser)
+
+	// creating user group
+	userGroup := server.router.Group("/users/:username")
+	userGroup.Use(auth.JWTAuthMiddleware())
+
+	userGroup.GET("/users/:username", userController.GetUser)
+	userGroup.DELETE("/users/:username", userController.DeleteUser)
+	userGroup.PUT("/users/:username", userController.PutUser)
+	userGroup.GET("/recipes", recipeController.GetRecipes)
+	userGroup.GET("/recipes/:recipe-name", recipeController.GetRecipe)
+	userGroup.PUT("/recipes/:recipe-name", recipeController.PutRecipe)
+	userGroup.DELETE("/recipes/:recipe-name", recipeController.DeleteRecipe)
+
+	//server.router.GET("/users/:username", userController.GetUser)
+	//server.router.DELETE("/users/:username", userController.DeleteUser)
+	// server.router.GET("/users/:username/recipes", recipeController.GetRecipes)
+	// server.router.GET("/users/:username/recipes/:recipe-name", recipeController.GetRecipe)
+	// server.router.PUT("/users/:username/recipes/:recipe-name", recipeController.PutRecipe)
+	// server.router.DELETE("/users/:username/recipes/:recipe-name", recipeController.DeleteRecipe)
 
 	// middlewares
 	server.router.Use(unknown.UnknownPath)

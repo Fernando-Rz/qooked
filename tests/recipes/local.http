@@ -9,12 +9,24 @@ Content-Type: application/json
   "password": "securepassword123"
 }
 
+### Login with Existing User
+# @name login
+PUT http://localhost:8080/login
+Content-Type: application/json
+
+{
+  "username": "johndoe1234",
+  "password": "securePassword123"
+}
+
 ### Get Recipes
-GET http://localhost:8080/users/johndoe123/recipes
+GET http://localhost:8080/users/johndoe1234/recipes
+Authorization: Bearer {{login.response.body.$.token}}
 
 ### Create Recipe
-PUT http://localhost:8080/users/johndoe123/recipes/sandwichRecipe
+PUT http://localhost:8080/users/johndoe1234/recipes/sandwichRecipe
 Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
 
 {
   "recipeName": "sandwichRecipe",
@@ -58,10 +70,12 @@ Content-Type: application/json
 }
 
 ### Get Recipe
-GET http://localhost:8080/users/johndoe123/recipes/sandwichRecipe
+GET http://localhost:8080/users/johndoe1234/recipes/sandwichRecipe
+Authorization: Bearer {{login.response.body.$.token}}
 
 ### Delete Recipe
-DELETE http://localhost:8080/users/johndoe123/recipes/sandwichRecipe
+DELETE http://localhost:8080/users/johndoe1234/recipes/sandwichRecipe
+Authorization: Bearer {{login.response.body.$.token}}
 
 ### Delete User
 DELETE http://localhost:8080/users/johndoe123
