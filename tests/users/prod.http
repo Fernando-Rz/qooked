@@ -1,19 +1,46 @@
-### Get Users
-GET https://qooked.azurewebsites.net/users
+@prodUrl=https://qooked.azurewebsites.net
 
-### Create User
-PUT https://qooked.azurewebsites.net/users/johndoe123
+### Register a New User
+PUT {{prodUrl}}/register
 Content-Type: application/json
 
 {
-  "profileName": "John Doe",
-  "username": "johndoe123",
-  "email": "johndoe@example.com",
+  "username": "test",
+  "email": "test@example.com",
+  "password": "securePassword123",
+  "profileName": "Test Testerson"
+}
+
+### Login with Existing User
+# @name login
+PUT {{prodUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "test",
+  "password": "securePassword123"
+}
+
+### Gets all users (public)
+GET {{prodUrl}}/users
+
+### Create User (private)
+PUT {{prodUrl}}/users/test
+Authorization: Bearer {{login.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "profileName": "Test Test",
+  "username": "test",
+  "email": "test@example.com",
   "password": "securepassword123"
 }
 
-### Get User
-GET https://qooked.azurewebsites.net/users/johndoe123
+### Get User (private)
+GET {{prodUrl}}/users/test
+Authorization: Bearer {{login.response.body.$.token}}
 
-### Delete User
-DELETE https://qooked.azurewebsites.net/users/johndoe123
+
+### Delete User (private)
+DELETE {{prodUrl}}/users/test
+Authorization: Bearer {{login.response.body.$.token}}

@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"log"
 	"net/http"
 	"qooked/internal/auth/jwt"
 	"qooked/internal/managers/user"
@@ -86,8 +85,6 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 
 	user, err := ac.userManager.GetUser(req.Username)
 	if err != nil {
-		// remove log debugging
-		log.Printf("Login failed: GetUser(%q) error: %v", req.Username, err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
@@ -95,8 +92,6 @@ func (ac *AuthController) Login(ctx *gin.Context) {
 	// Compare hashed password stored vs password attempt
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
-		// remove log debugging
-		log.Printf("Login failed: password mismatch for %q: %v", req.Username, err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
 		return
 	}

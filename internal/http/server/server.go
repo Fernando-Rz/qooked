@@ -112,28 +112,18 @@ func (server *Server) initializeRouter() {
 	server.router.PUT("/register", authController.Register)
 	server.router.PUT("/login", authController.Login)
 
-	// server.router.PUT("/users/:username", userController.PutUser)
-
 	// creating user group
-	userGroup := server.router.Group("/users/:username")
-	userGroup.Use(auth.JWTAuthMiddleware())
+	userGroup := server.router.Group("/users/:username").Use(auth.JWTAuthMiddleware())
 
-	userGroup.GET("/users/:username", userController.GetUser)
-	userGroup.DELETE("/users/:username", userController.DeleteUser)
-	userGroup.PUT("/users/:username", userController.PutUser)
+	// we do not add "users/:username" here because it is already set to that due to the user group created above
+	userGroup.GET("", userController.GetUser)
+	userGroup.DELETE("", userController.DeleteUser)
+	userGroup.PUT("", userController.PutUser)
 	userGroup.GET("/recipes", recipeController.GetRecipes)
 	userGroup.GET("/recipes/:recipe-name", recipeController.GetRecipe)
 	userGroup.PUT("/recipes/:recipe-name", recipeController.PutRecipe)
 	userGroup.DELETE("/recipes/:recipe-name", recipeController.DeleteRecipe)
 
-	//server.router.GET("/users/:username", userController.GetUser)
-	//server.router.DELETE("/users/:username", userController.DeleteUser)
-	// server.router.GET("/users/:username/recipes", recipeController.GetRecipes)
-	// server.router.GET("/users/:username/recipes/:recipe-name", recipeController.GetRecipe)
-	// server.router.PUT("/users/:username/recipes/:recipe-name", recipeController.PutRecipe)
-	// server.router.DELETE("/users/:username/recipes/:recipe-name", recipeController.DeleteRecipe)
-
-	// middlewares
 	server.router.Use(unknown.UnknownPath)
 }
 

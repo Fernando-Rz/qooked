@@ -1,30 +1,32 @@
-### Create User
-PUT http://localhost:8080/users/johndoe123
+@localUrl = http://localhost:8080
+
+### Register a New User
+PUT {{localUrl}}/register
 Content-Type: application/json
 
 {
-  "profileName": "John Doe",
-  "username": "johndoe123",
-  "email": "johndoe@example.com",
-  "password": "securepassword123"
+  "username": "test",
+  "email": "test@example.com",
+  "password": "securePassword123",
+  "profileName": "Test Testerson"
 }
 
 ### Login with Existing User
 # @name login
-PUT http://localhost:8080/login
+PUT {{localUrl}}/login
 Content-Type: application/json
 
 {
-  "username": "johndoe1234",
+  "username": "test",
   "password": "securePassword123"
 }
 
 ### Get Recipes
-GET http://localhost:8080/users/johndoe1234/recipes
+GET {{localUrl}}/users/test/recipes
 Authorization: Bearer {{login.response.body.$.token}}
 
 ### Create Recipe
-PUT http://localhost:8080/users/johndoe1234/recipes/sandwichRecipe
+PUT {{localUrl}}/users/test/recipes/sandwichRecipe
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.token}}
 
@@ -70,12 +72,9 @@ Authorization: Bearer {{login.response.body.$.token}}
 }
 
 ### Get Recipe
-GET http://localhost:8080/users/johndoe1234/recipes/sandwichRecipe
+GET {{localUrl}}/users/test/recipes/sandwichRecipe
 Authorization: Bearer {{login.response.body.$.token}}
 
 ### Delete Recipe
-DELETE http://localhost:8080/users/johndoe1234/recipes/sandwichRecipe
+DELETE {{localUrl}}/users/test/recipes/sandwichRecipe
 Authorization: Bearer {{login.response.body.$.token}}
-
-### Delete User
-DELETE http://localhost:8080/users/johndoe123
