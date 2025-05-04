@@ -1,7 +1,7 @@
 @prodUrl=https://qooked.azurewebsites.net
 
 ### Register a New User
-PUT {{prodUrl}}/register
+POST {{prodUrl}}/register
 Content-Type: application/json
 
 {
@@ -13,7 +13,7 @@ Content-Type: application/json
 
 ### Login with Existing User
 # @name login
-PUT {{prodUrl}}/login
+POST {{prodUrl}}/login
 Content-Type: application/json
 
 {
@@ -23,6 +23,7 @@ Content-Type: application/json
 
 ### Gets all users (public)
 GET {{prodUrl}}/users
+Authorization: Bearer {{login.response.body.$.token}}
 
 ### Create User (private)
 PUT {{prodUrl}}/users/test

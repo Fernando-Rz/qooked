@@ -109,8 +109,8 @@ func (server *Server) initializeRouter() {
 
 	// public
 	server.router.GET("/users", userController.GetUsers)
-	server.router.PUT("/register", authController.Register)
-	server.router.PUT("/login", authController.Login)
+	server.router.POST("/register", authController.Register)
+	server.router.POST("/login", authController.Login)
 
 	// creating user group
 	userGroup := server.router.Group("/users/:username").Use(auth.JWTAuthMiddleware())
