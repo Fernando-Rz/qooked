@@ -1,20 +1,34 @@
-### Create User
-PUT https://qooked.azurewebsites.net/users/johndoe123
+@prodUrl=https://qooked.azurewebsites.net
+
+### Register a New User
+POST {{prodUrl}}/register
 Content-Type: application/json
 
 {
-  "profileName": "John Doe",
-  "username": "johndoe123",
-  "email": "johndoe@example.com",
-  "password": "securepassword123"
+  "username": "test",
+  "email": "test@example.com",
+  "password": "securePassword123",
+  "profileName": "Test Testerson"
+}
+
+### Login with Existing User
+# @name login
+POST {{prodUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "test",
+  "password": "securePassword123"
 }
 
 ### Get Recipes
-GET https://qooked.azurewebsites.net/users/johndoe123/recipes
+GET {{prodUrl}}/users/test/recipes
+Authorization: Bearer {{login.response.body.$.token}}
 
 ### Create Recipe
-PUT https://qooked.azurewebsites.net/users/johndoe123/recipes/sandwichRecipe
+PUT {{prodUrl}}/users/test/recipes/sandwichRecipe
 Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
 
 {
   "recipeName": "sandwichRecipe",
@@ -58,10 +72,9 @@ Content-Type: application/json
 }
 
 ### Get Recipe
-GET https://qooked.azurewebsites.net/users/johndoe123/recipes/sandwichRecipe
+GET {{prodUrl}}/users/test/recipes/sandwichRecipe
+Authorization: Bearer {{login.response.body.$.token}}
 
 ### Delete Recipe
-DELETE https://qooked.azurewebsites.net/users/johndoe123/recipes/sandwichRecipe
-
-### Delete User
-DELETE https://qooked.azurewebsites.net/users/johndoe123
+DELETE {{prodUrl}}/users/test/recipes/sandwichRecipe
+Authorization: Bearer {{login.response.body.$.token}}
