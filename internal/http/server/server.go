@@ -4,9 +4,11 @@ import (
 	"qooked/internal/config"
 	"qooked/internal/documentdb"
 	"qooked/internal/documentdb/azure/cosmos"
+	authController "qooked/internal/http/controllers/auth"
 	"qooked/internal/http/controllers/health"
 	recipeController "qooked/internal/http/controllers/recipe"
 	userController "qooked/internal/http/controllers/user"
+	"qooked/internal/http/middleware/auth"
 	"qooked/internal/http/middleware/unknown"
 	"qooked/internal/instrumentation"
 	mockInstrumentation "qooked/internal/instrumentation/mock"
@@ -98,25 +100,30 @@ func (server *Server) initializeRouter() {
 	// health check routes
 	server.router.GET("/health", health.HealthCheck)
 
-	// user scope routes
+	// managers and controllers
 	userManager := *userManager.NewUserManager(server.documentDatabaseClient, server.instrumentation)
 	userController := *userController.NewUserController(userManager)
-
-	server.router.GET("/users", userController.GetUsers)
-	server.router.GET("/users/:username", userController.GetUser)
-	server.router.PUT("/users/:username", userController.PutUser)
-	server.router.DELETE("/users/:username", userController.DeleteUser)
-
-	// recipe scope routes
 	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
 	recipeController := *recipeController.NewRecipeController(recipeManager, userManager)
+	authController := *authController.NewAuthController(userManager)
 
-	server.router.GET("/users/:username/recipes", recipeController.GetRecipes)
-	server.router.GET("/users/:username/recipes/:recipe-name", recipeController.GetRecipe)
-	server.router.PUT("/users/:username/recipes/:recipe-name", recipeController.PutRecipe)
-	server.router.DELETE("/users/:username/recipes/:recipe-name", recipeController.DeleteRecipe)
+	// public
+	server.router.GET("/users", userController.GetUsers)
+	server.router.POST("/register", authController.Register)
+	server.router.POST("/login", authController.Login)
 
-	// middlewares
+	// creating user group
+	userGroup := server.router.Group("/users/:username").Use(auth.JWTAuthMiddleware())
+
+	// the userGroup above defines a base route that all endpoints in the group will inherit
+	userGroup.GET("", userController.GetUser)
+	userGroup.DELETE("", userController.DeleteUser)
+	userGroup.PUT("", userController.PutUser)
+	userGroup.GET("/recipes", recipeController.GetRecipes)
+	userGroup.GET("/recipes/:recipe-name", recipeController.GetRecipe)
+	userGroup.PUT("/recipes/:recipe-name", recipeController.PutRecipe)
+	userGroup.DELETE("/recipes/:recipe-name", recipeController.DeleteRecipe)
+
 	server.router.Use(unknown.UnknownPath)
 }
 

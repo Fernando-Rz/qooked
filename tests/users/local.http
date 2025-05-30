@@ -1,19 +1,47 @@
-## Get Users
-GET http://localhost:8080/users
+@localUrl=http://localhost:8080
 
-### Create User
-PUT http://localhost:8080/users/johndoe123
+### Register a New User
+POST {{localUrl}}/register
 Content-Type: application/json
 
 {
-  "profileName": "John Doe",
-  "username": "johndoe123",
+  "username": "test",
+  "email": "test@example.com",
+  "password": "securePassword123",
+  "profileName": "Test Testerson"
+}
+
+### Login with Existing User
+# @name login
+POST {{localUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "test",
+  "password": "securePassword123"
+}
+
+### Gets all users (public)
+GET {{localUrl}}/users
+Authorization: Bearer {{login.response.body.$.token}}
+
+### Create User (private)
+PUT {{localUrl}}/users/test
+Authorization: Bearer {{login.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "profileName": "Test Test",
+  "username": "test",
   "email": "johndoe@example.com",
   "password": "securepassword123"
 }
 
-### Get User
-GET http://localhost:8080/users/johndoe123
+### Get User (private)
+GET {{localUrl}}/users/test
+Authorization: Bearer {{login.response.body.$.token}}
 
-### Delete User
-DELETE http://localhost:8080/users/johndoe123
+
+### Delete User (private)
+DELETE {{localUrl}}/users/test
+Authorization: Bearer {{login.response.body.$.token}}
