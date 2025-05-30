@@ -21,28 +21,17 @@ func NewAuthController(userManager user.UserManager) *AuthController {
 }
 
 func (ac *AuthController) Register(ctx *gin.Context) {
-	// required fields according to the model
-	var req struct {
-		Username    string `json:"username" binding:"required,alphanum"`
-		Email       string `json:"email" binding:"required,email"`
-		Password    string `json:"password" binding:"required,min=8"` // we can remove these string requirements
-		ProfileName string `json:"profileName" binding:"required"`
-	}
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	var userData models.User
+	// var err error
+
+	if err := ctx.ShouldBindJSON(&userData); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input: " + err.Error()})
 		return
 	}
 
-	// check if username already exists
-	_, err := ac.userManager.GetUser(req.Username)
-	if err == nil {
-		ctx.JSON(http.StatusConflict, gin.H{"error": "Username already taken"})
-		return
-	}
-
 	// hash the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userData.Password), bcrypt.DefaultCost)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 		return
@@ -50,19 +39,19 @@ func (ac *AuthController) Register(ctx *gin.Context) {
 
 	// Create new user object
 	newUser := models.User{
-		Username:    req.Username,
-		Email:       req.Email,
+		Username:    userData.Username,
+		Email:       userData.Email,
 		Password:    string(hashedPassword),
-		ProfileName: req.ProfileName,
+		ProfileName: userData.ProfileName,
 	}
 
-	err = ac.userManager.UpsertUser(req.Username, &newUser)
+	err = ac.userManager.UpsertUser(userData.Username, &newUser)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// auto-login after registration, tested it and it returns the same token if you hit the login endpoint afterwards
+	// auto-login after registration
 	token, err := jwt.GenerateJWT(newUser.Username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})

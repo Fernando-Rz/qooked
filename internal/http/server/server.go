@@ -115,7 +115,7 @@ func (server *Server) initializeRouter() {
 	// creating user group
 	userGroup := server.router.Group("/users/:username").Use(auth.JWTAuthMiddleware())
 
-	// we do not add "users/:username" here because it is already set to that due to the user group created above
+	// the userGroup above defines a base route that all endpoints in the group will inherit
 	userGroup.GET("", userController.GetUser)
 	userGroup.DELETE("", userController.DeleteUser)
 	userGroup.PUT("", userController.PutUser)
