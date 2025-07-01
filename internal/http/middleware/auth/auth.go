@@ -32,7 +32,20 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		tokenUsername, ok := claims["username"].(string)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token payload"})
+			return
+		}
+
+		routeUser := c.Param("username")
+		if routeUser != tokenUsername {
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "User mismatch: unauthorized access"})
+			return
+		}
+
 		// Store the claims in the context
+		c.Set("username", tokenUsername)
 		c.Set("claims", claims)
 
 		// Continue to the next middleware/handler

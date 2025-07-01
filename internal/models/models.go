@@ -4,10 +4,10 @@ package models
 type User struct {
 	UserId      string `json:"id"`
 	GroupId     string `json:"groupId"`
-	ProfileName string `json:"profileName"`
-	Username    string `json:"username"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
+	ProfileName string `json:"profileName" binding:"required" `
+	Username    string `json:"username" binding:"required"`
+	Email       string `json:"email" binding:"required"`
+	Password    string `json:"password" binding:"required,min=8"`
 }
 
 // recipe definition
