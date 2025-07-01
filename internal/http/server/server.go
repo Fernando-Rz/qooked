@@ -104,7 +104,6 @@ func (server *Server) initializeRouter() {
 	userManager := *userManager.NewUserManager(server.documentDatabaseClient, server.instrumentation)
 	userController := *userController.NewUserController(userManager)
 	recipeManager := *recipeManager.NewRecipeManager(server.documentDatabaseClient, server.instrumentation)
-
 	recipeController := *recipeController.NewRecipeController(recipeManager, userManager)
 	authController := *authController.NewAuthController(userManager)
 
