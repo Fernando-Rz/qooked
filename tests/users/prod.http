@@ -1,0 +1,47 @@
+@prodUrl=https://qooked.azurewebsites.net
+
+### Register a New User
+POST {{prodUrl}}/register
+Content-Type: application/json
+
+{
+  "username": "test",
+  "email": "test@example.com",
+  "password": "securePassword123",
+  "profileName": "Test Testerson"
+}
+
+### Login with Existing User
+# @name login
+POST {{prodUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "test",
+  "password": "securePassword123"
+}
+
+### Gets all users (public)
+GET {{prodUrl}}/users
+Authorization: Bearer {{login.response.body.$.token}}
+
+### Create User (private)
+PUT {{prodUrl}}/users/test
+Authorization: Bearer {{login.response.body.$.token}}
+Content-Type: application/json
+
+{
+  "profileName": "Test Test",
+  "username": "test",
+  "email": "test@example.com",
+  "password": "securepassword123"
+}
+
+### Get User (private)
+GET {{prodUrl}}/users/test
+Authorization: Bearer {{login.response.body.$.token}}
+
+
+### Delete User (private)
+DELETE {{prodUrl}}/users/test
+Authorization: Bearer {{login.response.body.$.token}}

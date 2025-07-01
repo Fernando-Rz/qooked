@@ -18,6 +18,7 @@ func NewMockDocumentDatabaseClient() *MockDocumentDatabaseClient {
 
 func (db *MockDocumentDatabaseClient) InitializeClient(endpointUrl string, databaseName string) error {
 	db.collections["recipes"] = make(map[string]documentdb.Document)
+	db.collections["users"] = make(map[string]documentdb.Document)
 	return nil
 }
 
@@ -25,7 +26,7 @@ func (db *MockDocumentDatabaseClient) TestConnection() error {
 	return nil
 }
 
-func (db *MockDocumentDatabaseClient) GetDocuments(collection string) (*[]documentdb.Document, error) {
+func (db *MockDocumentDatabaseClient) GetDocuments(collection string, query string, partitionKey string) (*[]documentdb.Document, error) {
 	db.mutex.RLock()
 	defer db.mutex.RUnlock()
 

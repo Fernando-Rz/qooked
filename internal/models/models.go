@@ -1,10 +1,20 @@
 package models
 
+// user definition
+type User struct {
+	UserId      string `json:"id"`
+	GroupId     string `json:"groupId"`
+	ProfileName string `json:"profileName" binding:"required" `
+	Username    string `json:"username" binding:"required"`
+	Email       string `json:"email" binding:"required"`
+	Password    string `json:"password" binding:"required,min=8"`
+}
+
 // recipe definition
 type Recipe struct {
-	Id           string       `json:"id"`
-	PartitionKey string       `json:"partitionKey"`
-	Name         string       `json:"name"`
+	RecipeId     string       `json:"id"`
+	UserId       string       `json:"userId"`
+	RecipeName   string       `json:"recipeName"`
 	Description  string       `json:"description"`
 	Time         RecipeTime   `json:"time"`
 	Servings     int          `json:"servings"`
@@ -21,6 +31,6 @@ type RecipeTime struct {
 
 // ingredient definition
 type Ingredient struct {
-	Name   string `json:"name"`
-	Amount string `json:"amount"`
+	IngredientName string `json:"ingredientName"`
+	Amount         string `json:"amount"`
 }

@@ -1,0 +1,80 @@
+@localUrl = http://localhost:8080
+
+### Register a New User
+POST {{localUrl}}/register
+Content-Type: application/json
+
+{
+  "username": "test",
+  "email": "test@example.com",
+  "password": "securePassword123",
+  "profileName": "Test Testerson"
+}
+
+### Login with Existing User
+# @name login
+POST {{localUrl}}/login
+Content-Type: application/json
+
+{
+  "username": "test",
+  "password": "securePassword123"
+}
+
+### Get Recipes
+GET {{localUrl}}/users/test/recipes
+Authorization: Bearer {{login.response.body.$.token}}
+
+### Create Recipe
+PUT {{localUrl}}/users/test/recipes/sandwichRecipe
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.token}}
+
+{
+  "recipeName": "sandwichRecipe",
+  "description": "My first recipe.",
+  "time": {
+    "prep": "5m",
+    "cook": "2m",
+    "total": "7m"
+  },
+  "servings": 1,
+  "ingredients": [
+    {
+      "ingredientName": "bread",
+      "amount": "4 slices"
+    },
+    {
+      "ingredientName": "ham",
+      "amount": "3 slices"
+    },
+    {
+      "ingredientName": "lettuce",
+      "amount": "2 pieces"
+    },
+    {
+      "ingredientName": "cheese",
+      "amount": "2 slices"
+    },
+    {
+      "ingredientName": "bacon",
+      "amount": "2 pieces"
+    }
+  ],
+  "instructions": [
+    "1. Place bread",
+    "2. Place ham",
+    "3. Place cheese",
+    "4. Place lettuce",
+    "5. Place 2 pieces of bacon",
+    "6. Repeat for second sandwich"
+  ]
+}
+
+### Get Recipe
+GET {{localUrl}}/users/test/recipes/sandwichRecipe
+Authorization: Bearer {{login.response.body.$.token}}
+
+### Delete Recipe
+DELETE {{localUrl}}/users/test/recipes/sandwichRecipe
+Authorization: Bearer {{login.response.body.$.token}}

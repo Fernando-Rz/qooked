@@ -9,13 +9,50 @@
       "value": [
         {
           "name": "recipes",
-          "partitionKey": "/partitionKey",
-          "throughput": "400"
+          "partitionKey": "/userId",
+          "throughput": "400",
+          "indexPaths": [
+            {
+              "path": "/*"
+            },
+            {
+              "indexes": [
+                {
+                  "dataType": "String",
+                  "kind": "Range"
+                }
+              ],
+              "path": "/recipeName/?"
+            }
+          ]
         },
         {
           "name": "users",
-          "partitionKey": "/partitionKey",
-          "throughput": "400"
+          "partitionKey": "/groupId",
+          "throughput": "400",
+          "indexPaths": [
+            {
+              "path": "/*"
+            },
+            {
+              "indexes": [
+                {
+                  "dataType": "String",
+                  "kind": "Range"
+                }
+              ],
+              "path": "/username/?"
+            },
+            {
+              "indexes": [
+                {
+                  "dataType": "String",
+                  "kind": "Range"
+                }
+              ],
+              "path": "/email/?"
+            }
+          ]
         }
       ]
     },

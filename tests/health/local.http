@@ -1,0 +1,5 @@
+### Health Check
+GET http://localhost:8080/health
+
+### Unknown Path Check
+GET http://localhost:8080/unknown
