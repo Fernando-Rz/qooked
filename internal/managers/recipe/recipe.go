@@ -71,7 +71,6 @@ func (recipeManager *RecipeManager) GetRecipe(recipeName string, userId string) 
 		return nil, err
 	}
 
-
 	for _, document := range *documents {
 		recipe, err := convertDocToRecipe(&document)
 
@@ -150,10 +149,8 @@ func (recipeManager *RecipeManager) UpsertRecipe(recipeName string, recipe *mode
 		return err
 	}
 
-
 	recipeManager.instrumentation.Log(fmt.Sprintf("Attempting to upsert recipe with recipeName '%s' for user with userId '%s'...", recipeName, userId))
 	err = recipeManager.databaseClient.UpsertDocument(collectionName, recipe.RecipeId, document, userId)
-
 
 	if err != nil {
 		recipeManager.instrumentation.LogError(err.Error())

@@ -127,7 +127,7 @@ func (recipeController *RecipeController) PutRecipe(ctx *gin.Context) {
 		} else {
 			ctx.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "Failed to create or update recipe."})
 		}
-    
+
 		return
 	}
 
